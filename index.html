@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Snack Station</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f2f2f7;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#111}
+main{max-width:650px;margin:auto;padding:18px}.card{background:#fff;border-radius:20px;padding:18px;margin:12px 0;box-shadow:0 2px 10px #00000012}
+h1{margin:0;font-size:30px}.sub{color:#666;margin:3px 0 16px}.hidden{display:none!important}
+button,input{font:inherit}button{border:0;border-radius:14px;padding:13px 16px;background:#111;color:#fff;font-weight:600;cursor:pointer}
+button.secondary{background:#e5e5ea;color:#111}button.danger{background:#c62828}.wide{width:100%;margin:7px 0}
+.kid,.snack{display:flex;align-items:center;justify-content:space-between;border:1px solid #ddd;border-radius:16px;padding:13px;margin:8px 0}
+.name{font-weight:700}.small{font-size:14px;color:#666}.price{font-weight:700}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+input{width:100%;padding:12px;border:1px solid #ccc;border-radius:12px;margin:5px 0}
+.balance{font-size:34px;font-weight:800}.notice{padding:12px;border-radius:12px;background:#fff4d6;margin:10px 0}
+</style></head><body><main>
+<header class="card"><h1>🥨 Snack Station</h1><div class="sub">Family snack tracker</div></header>
+
+<section id="home" class="card"><h2>Who's taking a snack?</h2><div id="kids"></div>
+<button class="secondary wide" onclick="showParent()">🔒 Parent Dashboard</button></section>
+
+<section id="shop" class="card hidden"><button class="secondary" onclick="goHome()">← Back</button>
+<h2 id="shopKid"></h2><div class="small">Balance remaining</div><div id="balance" class="balance"></div>
+<div id="notice"></div><h3>What did you take?</h3><div id="snacks"></div></section>
+
+<section id="parent" class="card hidden"><button class="secondary" onclick="goHome()">← Back</button>
+<h2>🔒 Parent Dashboard</h2><div id="parentContent"></div></section>
+
+<section id="pin" class="card hidden"><h2>Parent PIN</h2><p class="small">Demo PIN: <b>2468</b></p><input id="pinInput" type="password" inputmode="numeric" maxlength="4" placeholder="Enter PIN">
+<button class="wide" onclick="checkPin()">Continue</button><button class="secondary wide" onclick="goHome()">Cancel</button></section>
+</main>
+<script>
+const DEFAULT={kids:[{name:"Kyan",balance:5},{name:"Emerson",balance:5},{name:"Maeven",balance:5},{name:"Kid 4",balance:5}],
+snacks:[{name:"Oreos",price:.5,stock:20},{name:"Capri Sun",price:.75,stock:12},{name:"Granola Bar",price:.75,stock:10},{name:"Fruit Snacks",price:.5,stock:15},{name:"Popcorn",price:.5,stock:15},{name:"Chips",price:.75,stock:12}],tx:[]};
+let d=JSON.parse(localStorage.getItem("snackStation2")||"null")||structuredClone(DEFAULT), kid=-1;
+const $=id=>document.getElementById(id), money=n=>"$"+Number(n).toFixed(2);
+function save(){localStorage.setItem("snackStation2",JSON.stringify(d))}
+function show(id){["home","shop","parent","pin"].forEach(x=>$(x).classList.toggle("hidden",x!==id))}
+function goHome(){kid=-1;show("home");renderKids()}
+function renderKids(){$("kids").innerHTML=d.kids.map((k,i)=>`<div class="kid"><div><div class="name">${k.name}</div><div class="small">${money(k.balance)} remaining</div></div><button onclick="shop(${i})">I'm ${k.name}</button></div>`).join("")}
+function shop(i){kid=i;show("shop");$("shopKid").textContent=d.kids[i].name;$("notice").innerHTML="";renderShop()}
+function renderShop(){$("balance").textContent=money(d.kids[kid].balance);$("snacks").innerHTML=d.snacks.map((s,i)=>`<div class="snack"><div><div class="name">${s.name}</div><div class="small">${money(s.price)} · ${s.stock} left</div></div><button onclick="take(${i})" ${s.stock<1||d.kids[kid].balance<s.price?"disabled":""}>Take 1</button></div>`).join("")}
+function take(i){let k=d.kids[kid],s=d.snacks[i];if(s.stock<1||k.balance<s.price)return;k.balance-=s.price;s.stock--;d.tx.push({time:new Date().toLocaleString(),kid:k.name,snack:s.name,price:s.price});save();$("notice").innerHTML=`<div class="notice">✅ ${s.name} recorded for ${money(s.price)}.</div>`;renderShop()}
+function showParent(){show("pin");$("pinInput").value="";setTimeout(()=>$("pinInput").focus(),100)}
+function checkPin(){if($("pinInput").value==="2468"){show("parent");renderParent()}else alert("Wrong PIN.")}
+function renderParent(){$("parentContent").innerHTML=`<h3>Kids</h3>${d.kids.map((k,i)=>`<div class="kid"><div><b>${k.name}</b><br><span class="small">${money(k.balance)}</span></div><button onclick="addMoney(${i})">Add $</button></div>`).join("")}<h3>Snacks</h3><button onclick="addSnack()">＋ Add snack</button>${d.snacks.map((s,i)=>`<div class="kid"><div><b>${s.name}</b><br><span class="small">${money(s.price)} · ${s.stock} in stock</span></div><button onclick="editSnack(${i})">Edit</button></div>`).join("")}<h3>Recent activity</h3>${d.tx.slice(-30).reverse().map(t=>`<p class="small">${t.time}<br><b>${t.kid}</b> took ${t.snack} — ${money(t.price)}</p>`).join("")||"<p class='small'>No snacks taken yet.</p>"}<button class="danger wide" onclick="resetAll()">Reset all data</button>`}
+function addMoney(i){let v=prompt(`How much money to add to ${d.kids[i].name}?`);if(v!==null&&!isNaN(v)){d.kids[i].balance+=Number(v);save();renderParent()}}
+function addSnack(){let n=prompt("Snack name?");if(!n)return;let p=prompt("Price?","0.50");let q=prompt("Starting inventory?","10");if(!isNaN(p)&&!isNaN(q)){d.snacks.push({name:n,price:Number(p),stock:Number(q)});save();renderParent()}}
+function editSnack(i){let s=d.snacks[i],n=prompt("Name:",s.name);if(n===null)return;let p=prompt("Price:",s.price),q=prompt("Inventory:",s.stock);if(!isNaN(p)&&!isNaN(q)){s.name=n;s.price=Number(p);s.stock=Number(q);save();renderParent()}}
+function resetAll(){if(confirm("Reset everything?")){localStorage.removeItem("snackStation2");d=structuredClone(DEFAULT);renderParent()}}
+goHome();
+</script></body></html>
