@@ -786,9 +786,10 @@
     img.onload = () => {
       if ($('#saver').classList.contains('hidden')) return;
       const incoming = $('#saver' + (saverFront === 'A' ? 'B' : 'A')), outgoing = $('#saver' + saverFront);
-      // landscape art fills the screen; portrait art is shown whole rather than cropped
-      const fill = img.naturalWidth / img.naturalHeight > 1.2;
-      incoming.style.backgroundImage = `url("${item.full}")`;
+      // art shaped like the screen fills it; art in the other orientation is shown whole rather than cropped
+      const imgR = img.naturalWidth / img.naturalHeight, scrR = window.innerWidth / window.innerHeight;
+      const fill = Math.max(imgR / scrR, scrR / imgR) < 1.45;
+      $('.fg', incoming).style.backgroundImage = $('.bg', incoming).style.backgroundImage = `url("${item.full}")`;
       incoming.style.setProperty('--dur', (saverOpts.intervalSeconds + 3) + 's');
       incoming.style.setProperty('--kx', (Math.random() * 4 - 2).toFixed(1) + '%');
       incoming.style.setProperty('--ky', (Math.random() * 4 - 2).toFixed(1) + '%');
@@ -831,7 +832,7 @@
   function stopSaver() {
     clearTimeout(saverTimer);
     $('#saver').classList.add('hidden');
-    $('#saverA').style.backgroundImage = ''; $('#saverB').style.backgroundImage = '';
+    $$('#saver .bg, #saver .fg').forEach((el) => { el.style.backgroundImage = ''; });
     resetIdle();
     if (state.view === 'cameras') refreshSnapshots();
     if (state.view === 'calendar') loadCalendar();

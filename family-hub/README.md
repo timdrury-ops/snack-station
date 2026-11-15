@@ -60,6 +60,16 @@ On the jailbroken device:
 3. Turn **off** Fully's own screensaver and its "reload on idle" option. Family Hub has its own screensaver.
 4. Give the server a **fixed IP**, using a DHCP reservation in your router, so the URL never changes.
 
+### Vertical or horizontal
+
+Family Hub works hung either way and switches layouts on its own, even mid-use:
+
+- **Horizontal:** the menu runs down the left side, and the calendar has today's events beside it.
+- **Vertical:** the menu moves to a bottom bar, like a phone. Today's events sit under the calendar, and the week view shows one row per day.
+- **Screensaver:** art shaped like the screen fills it. Art in the other orientation is shown whole on a blurred copy of itself, so there are no black bars.
+
+A wall-mounted frame may not rotate on its own, so tell Android which way it's mounted. In Fully Kiosk, go to *Device Management → Screen Orientation* and choose **Portrait** or **Landscape** rather than *Auto*.
+
 ## 3. Calendars
 
 Go to **Settings → Calendars → Add calendar** and paste each calendar's *secret iCal address*:
