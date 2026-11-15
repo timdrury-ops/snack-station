@@ -143,13 +143,24 @@ The Home Assistant token stays on the server. The display can only call the smal
 
 ## Look and theme
 
-The interface is monochrome: black, white and grays, the Inter typeface, and thin line icons. Under **Settings → General → Theme** you can pick:
+The interface is built from **one color you pick**, with white doing most of the work. The look is clean and modern, using the Inter typeface and thin line icons.
+
+Under **Settings → General → Color**, tap a preset or the **+** to choose any color. The screen previews it live, and the color is kept once you tap **Save**. The presets are blue, red, green, teal, purple, orange, pink and graphite. From that one color the app makes:
+
+- **Near-white tints** for the backgrounds, the board and the today highlight.
+- **The color itself** for buttons, the selected tab, push pins and devices that are switched on.
+- **Deep shades** for text.
+- **Shades for each calendar.** Tap a calendar's dot in Settings to step through them. Every calendar stays in the same color family, and they all change together if you change the color.
+
+Pick **graphite** for a pure black-and-white look.
+
+Under **Settings → General → Theme** you can choose:
 
 - **Light**
-- **Dark**
-- **Automatic**, which switches to dark from 9 PM to 7 AM so the screen isn't glaring at night.
+- **Dark**, which uses the same color on deep, tinted backgrounds.
+- **Automatic**, which switches to dark from 9 PM to 7 AM.
 
-Calendars default to gray shades, and gray shades flip in dark mode so a "black" calendar stays visible. You can still give a calendar a real color in Settings if you want one to stand out. Photos and your screensaver art always keep their own colors.
+Photos and screensaver art always keep their own colors.
 
 ## Settings PIN
 

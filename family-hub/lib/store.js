@@ -27,7 +27,8 @@ export const DEFAULT_SETTINGS = {
   weekStartsOn: 0,         // 0 = Sunday, 1 = Monday
   calendars: [],           // [{ id, name, url, color }]
   theme: 'light',          // light | dark | auto (dark 9 PM – 7 AM)
-  localCalendar: { name: 'Family', color: '#111111' },
+  accent: '#2563eb',       // the one color the whole palette is built from
+  localCalendar: { name: 'Family', color: 'shade:0' },
   board: { dropboxFolder: '/Bulletin Board' },
   screensaver: {
     enabled: true,

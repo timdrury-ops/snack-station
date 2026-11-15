@@ -72,23 +72,68 @@
     const v = parseInt(m[1], 16), l = (0.299 * (v >> 16) + 0.587 * ((v >> 8) & 255) + 0.114 * (v & 255)) / 255;
     return l > 0.6 ? '#111' : '#fff';
   };
-  // gray calendar shades flip in dark mode so "black" calendars stay visible; real colors are left alone
-  const cc = (c) => {
-    const m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(c || '');
-    if (!m || document.documentElement.dataset.theme !== 'dark') return c;
-    const [r, g, b] = m.slice(1).map((x) => parseInt(x, 16));
-    if (Math.max(r, g, b) - Math.min(r, g, b) > 12) return c;
-    return '#' + [r, g, b].map((v) => (255 - v).toString(16).padStart(2, '0')).join('');
+  // ---------------------------------------------------------------- accent color → whole palette
+  // One user-picked color drives everything: near-white tints for backgrounds,
+  // the color itself for accents, deep shades for text. A gray pick gives pure monochrome.
+  const ACCENTS = [['#2563eb', 'Blue'], ['#dc2626', 'Red'], ['#16a34a', 'Green'], ['#0d9488', 'Teal'],
+    ['#7c3aed', 'Purple'], ['#ea580c', 'Orange'], ['#db2777', 'Pink'], ['#262626', 'Graphite']];
+  function hexToHsl(hex) {
+    const m = /^#([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return [220, 80, 50];
+    const v = parseInt(m[1], 16), r = (v >> 16) / 255, g = ((v >> 8) & 255) / 255, b = (v & 255) / 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2, d = max - min;
+    if (!d) return [0, 0, l * 100];
+    const s = d / (1 - Math.abs(2 * l - 1));
+    const h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return [(h * 60 + 360) % 360, s * 100, l * 100];
+  }
+  function hsl(h, s, l) {
+    s /= 100; l /= 100;
+    const k = (n) => (n + h / 30) % 12, a = s * Math.min(l, 1 - l);
+    const f = (n) => Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1))));
+    return '#' + [f(0), f(8), f(4)].map((x) => x.toString(16).padStart(2, '0')).join('');
+  }
+  let palette = { h: 220, s: 80, l: 50, dark: false };
+  const isDark = () => palette.dark;
+  // calendar colors are stored as "shade:0".."shade:4" (follow the accent) or a fixed hex
+  const SHADE_COUNT = 5;
+  const shadeColor = (i) => {
+    const { h, s, l, dark } = palette;
+    const L = dark ? [Math.max(l, 62), 82, 50, 38, 72][i] : [Math.min(l, 52), 28, 66, 80, 40][i];
+    return hsl(h, Math.min(s, 85) * (i === 0 ? 1 : 0.8), L);
   };
-  const CAL_SHADES =['#111111', '#5c5c5c', '#9a9a9a', '#c8c8c8', '#2e2e2e', '#7a7a7a'];
-  const applyTheme = () => {
-    const t = state.settings.theme || 'light';
-    const night = (h) => h >= 21 || h < 7;
-    const next = t === 'auto' ? (night(new Date().getHours()) ? 'dark' : 'light') : t;
-    if (document.documentElement.dataset.theme === next) return;
-    document.documentElement.dataset.theme = next;
-    if (state.view === 'calendar') renderCalendar(); // calendar shades depend on the theme
-  };
+  const cc = (c) => (/^shade:\d$/.test(c || '') ? shadeColor(Number(c.slice(6)) % SHADE_COUNT) : c);
+  const CAL_SHADES = ['shade:0', 'shade:1', 'shade:2', 'shade:3', 'shade:4'];
+
+  let themeKey = '';
+  function applyTheme(settings) {
+    const conf = settings || state.settings;
+    const t = conf.theme || 'light', night = (hr) => hr >= 21 || hr < 7;
+    const mode = t === 'auto' ? (night(new Date().getHours()) ? 'dark' : 'light') : t;
+    const accent = conf.accent || '#2563eb';
+    if (themeKey === mode + accent) return;
+    themeKey = mode + accent;
+    const [h, s0, l] = hexToHsl(accent), s = Math.min(s0, 90), dark = mode === 'dark';
+    const tint = (sat, light) => hsl(h, Math.min(s, sat), light);
+    palette = { h, s, l, dark };
+    // the accent itself, nudged so it stays readable as a fill in either mode
+    const acc = dark ? hsl(h, s, s < 8 ? 90 : Math.max(l, 62)) : hsl(h, s, Math.min(l, s < 8 ? 15 : 50));
+    const vars = dark ? {
+      bg: tint(25, 6), surface: tint(22, 10), soft: tint(22, 15), ink: tint(15, 95), muted: tint(10, 62),
+      faint: tint(10, 32), line: tint(18, 18), accent: acc, 'accent-ink': tint(30, 8),
+      'accent-soft': hsl(h, Math.min(s, 35), 14), board: tint(20, 8), 'board-dot': hsl(h, s, 70) + '22',
+      'note-1': '#ffffff', 'note-2': hsl(h, Math.min(s, 70), 85), 'note-3': hsl(h, s, 45), 'note-4': hsl(h, Math.min(s, 50), 22),
+    } : {
+      bg: tint(45, 98), surface: '#ffffff', soft: tint(60, 95.5), ink: tint(40, 13), muted: tint(14, 45),
+      faint: tint(15, 74), line: tint(35, 91), accent: acc, 'accent-ink': '#ffffff',
+      'accent-soft': tint(80, 94), board: tint(40, 95), 'board-dot': hsl(h, s, 30) + '1f',
+      'note-1': '#ffffff', 'note-2': hsl(h, Math.min(s, 80), 90), 'note-3': hsl(h, Math.min(s, 75), 76), 'note-4': acc,
+    };
+    const root = document.documentElement;
+    root.dataset.theme = mode;
+    Object.keys(vars).forEach((k) => root.style.setProperty('--' + k, vars[k]));
+    const meta = $('meta[name=theme-color]'); if (meta) meta.content = vars.surface;
+    if (state.view === 'calendar') renderCalendar(); // calendar shades follow the accent
+  }
 
   async function api(path, opts) {
     opts = opts || {};
@@ -140,6 +185,7 @@
     if (name === 'settings' && state.settings.hasPin && !state.pin) {
       return askPin(() => showView('settings'));
     }
+    if (state.view === 'settings' && name !== 'settings') applyTheme(); // drop an unsaved color preview
     state.view = name;
     $$('.tab[data-view]').forEach((b) => b.classList.toggle('active', b.dataset.view === name));
     $$('.view').forEach((v) => v.classList.toggle('active', v.id === 'view-' + name));
@@ -652,6 +698,10 @@
     $('#settingsBody').innerHTML = `
     <div class="card"><h2>General</h2>
       <label class="field">Display name<input id="sTitle" value="${esc(s.title)}"></label>
+      <div class="field">Color
+        <div class="accents" id="accentPick">${ACCENTS.map(([c, n]) => `<button data-accent="${c}" title="${n}" aria-label="${n}" style="background:${c}" class="${(s.accent || '#2563eb').toLowerCase() === c ? 'on' : ''}"></button>`).join('')}
+          <label class="custom" title="Any color"><input type="color" id="accentCustom" value="${esc(s.accent || '#2563eb')}">${icon('plus')}</label></div>
+      </div>
       <label class="field">Theme<select id="sTheme">${[['light', 'Light'], ['dark', 'Dark'], ['auto', 'Automatic (dark 9 PM – 7 AM)']].map(([v, l]) => `<option value="${v}" ${(s.theme || 'light') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
       <div class="row"><label class="field">Clock<select id="s24"><option value="0">12-hour (3:30 PM)</option><option value="1" ${s.use24h ? 'selected' : ''}>24-hour (15:30)</option></select></label>
       <label class="field">Week starts<select id="sWeek"><option value="0">Sunday</option><option value="1" ${s.weekStartsOn === 1 ? 'selected' : ''}>Monday</option></select></label></div>
@@ -668,7 +718,7 @@
       <div id="calRows"></div>
       <button class="btn ghost" id="addCal">${icon('plus')}Add calendar</button>
       <hr class="sep">
-      <div class="list-row"><input type="color" id="localColor" value="${esc(s.localCalendar.color)}"><input type="text" id="localName" value="${esc(s.localCalendar.name)}"></div>
+      <div class="list-row"><button class="calswatch" id="localColor" data-color="${esc(s.localCalendar.color)}" title="Tap to change shade" style="background:${esc(cc(s.localCalendar.color))}"></button><input type="text" id="localName" value="${esc(s.localCalendar.name)}"></div>
       <p class="hint" style="margin:0">Events you add on this screen go into this calendar. To see them on your phones, subscribe to
       <code>${esc(origin)}/calendar.ics</code> (works while your phone is on home Wi-Fi).</p>
     </div>
@@ -715,14 +765,32 @@
 
     // calendars
     const calRows = () => {
-      $('#calRows').innerHTML = s.calendars.map((c, i) => `<div class="list-row"><input type="color" data-ci="${i}" data-k="color" value="${esc(c.color)}">
+      $('#calRows').innerHTML = s.calendars.map((c, i) => `<div class="list-row"><button class="calswatch" data-swatch="${i}" title="Tap to change shade" style="background:${esc(cc(c.color))}"></button>
         <input type="text" data-ci="${i}" data-k="name" value="${esc(c.name)}" placeholder="Name" style="flex:0 0 8rem">
         <input type="url" data-ci="${i}" data-k="url" value="${esc(c.url)}" placeholder="https://… .ics"><button class="rm" data-rmcal="${i}" aria-label="Remove">${icon('x')}</button></div>`).join('');
     };
     calRows();
     $('#calRows').addEventListener('input', (e) => { const i = e.target.dataset.ci; if (i != null) s.calendars[i][e.target.dataset.k] = e.target.value; });
-    $('#calRows').addEventListener('click', (e) => { const i = e.target.dataset.rmcal; if (i != null) { s.calendars.splice(i, 1); calRows(); } });
+    // tapping a calendar's dot steps through shades of the accent color
+    const nextShade = (c) => CAL_SHADES[(CAL_SHADES.indexOf(c) + 1) % CAL_SHADES.length];
+    $('#calRows').addEventListener('click', (e) => {
+      const sw = e.target.closest('[data-swatch]');
+      if (sw) { const c = s.calendars[sw.dataset.swatch]; c.color = nextShade(c.color); sw.style.background = cc(c.color); return; }
+      const rm = e.target.closest('[data-rmcal]'); if (rm) { s.calendars.splice(rm.dataset.rmcal, 1); calRows(); }
+    });
+    $('#localColor').addEventListener('click', (e) => { const b = e.currentTarget; b.dataset.color = nextShade(b.dataset.color); b.style.background = cc(b.dataset.color); });
     $('#addCal').addEventListener('click', () => { s.calendars.push({ name: '', url: '', color: CAL_SHADES[(s.calendars.length + 1) % CAL_SHADES.length] }); calRows(); });
+
+    // accent color: preview live, kept only when saved
+    const previewAccent = (c) => {
+      s.accent = c;
+      $$('#accentPick [data-accent]').forEach((b) => b.classList.toggle('on', b.dataset.accent === c.toLowerCase()));
+      applyTheme({ theme: $('#sTheme').value, accent: c });
+      $$('.calswatch').forEach((b) => { const col = b.id === 'localColor' ? b.dataset.color : s.calendars[b.dataset.swatch].color; b.style.background = cc(col); });
+    };
+    $('#accentPick').addEventListener('click', (e) => { const b = e.target.closest('[data-accent]'); if (b) previewAccent(b.dataset.accent); });
+    $('#accentCustom').addEventListener('input', (e) => previewAccent(e.target.value));
+    $('#sTheme').addEventListener('change', () => applyTheme({ theme: $('#sTheme').value, accent: s.accent }));
 
     // cameras
     const camRows = () => {
@@ -779,7 +847,7 @@
     const s = draft, v = (id) => $('#' + id).value, c = (id) => $('#' + id).checked;
     s.theme = v('sTheme'); s.title = v('sTitle'); s.use24h = v('s24') === '1'; s.weekStartsOn = Number(v('sWeek'));
     s.tabs = { cameras: c('tCam'), home: c('tHome'), snacks: c('tSnacks') };
-    s.localCalendar = { name: v('localName') || 'Family', color: v('localColor') };
+    s.localCalendar = { name: v('localName') || 'Family', color: $('#localColor').dataset.color };
     s.board.dropboxFolder = v('boardFolder');
     Object.assign(s.screensaver, {
       enabled: c('ssOn'), idleMinutes: Math.max(1, Number(v('ssIdle')) || 5), intervalSeconds: Math.max(5, Number(v('ssInt')) || 20),
