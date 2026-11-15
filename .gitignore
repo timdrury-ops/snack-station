@@ -1,0 +1,33 @@
+# ---- Never commit personal data, secrets or build output ----
+
+# Environment files and tokens
+.env
+.env.*
+!.env.example
+*.token
+secrets.json
+**/secure/
+
+# Calendar data and downloaded feeds (addresses are entered on the device, never in code)
+*.ics
+calendar-cache/
+family-hub/data/
+
+# Android signing keys and local machine config
+*.jks
+*.keystore
+keystore.properties
+local.properties
+
+# Android / Gradle build output and caches
+android/.gradle/
+android/build/
+android/app/build/
+android/.idea/
+android/captures/
+*.apk
+*.aab
+*.iml
+
+# Node
+node_modules/

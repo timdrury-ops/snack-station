@@ -15,6 +15,7 @@
   const sameDay = (a, b) => ymd(a) === ymd(b);
   const hashNum = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); };
 
+  const NATIVE = !!window.HubLocalApi; // running inside the Android app
   const state = {
     settings: null,
     status: {},
@@ -157,6 +158,10 @@
     const headers = Object.assign({}, opts.headers || {});
     if (state.pin) headers['X-Pin'] = state.pin;
     let body = opts.body;
+    if (window.HubLocalApi) { // inside the Android app: everything is answered on the device
+      try { return await window.HubLocalApi.request(path, { method: opts.method || (body ? 'POST' : 'GET'), headers, body }); }
+      catch (e) { if (e.status === 401) state.pin = ''; throw e; }
+    }
     if (body && !(body instanceof Blob) && typeof body === 'object') { headers['Content-Type'] = 'application/json'; body = JSON.stringify(body); }
     const res = await fetch(path, { method: opts.method || (body ? 'POST' : 'GET'), headers, body });
     const data = await res.json().catch(() => ({}));
@@ -210,7 +215,7 @@
     if (name === 'board') loadBoard();
     if (name === 'cameras') renderCameras();
     if (name === 'home') loadHome();
-    if (name === 'snacks' && !$('#snackFrame').src) $('#snackFrame').src = '/snacks';
+    if (name === 'snacks' && !$('#snackFrame').src) $('#snackFrame').src = NATIVE ? 'snacks.html' : '/snacks';
     if (name === 'settings') renderSettings();
   }
   $$('.tab[data-view]').forEach((b) => b.addEventListener('click', () => showView(b.dataset.view)));
@@ -597,7 +602,9 @@
       const next = new Image();
       next.onload = () => { img.src = next.src; img.closest('.cam').classList.remove('offline'); };
       next.onerror = () => img.closest('.cam').classList.add('offline');
-      next.src = `/api/cameras/${img.dataset.snap}/snapshot?t=${Date.now()}`;
+      // in the app the camera is fetched straight from the LAN; on the server it's proxied
+      const cam = state.settings.cameras[Number(img.dataset.snap)] || {};
+      next.src = NATIVE ? `${cam.snapshot}${cam.snapshot.indexOf('?') < 0 ? '?' : '&'}t=${Date.now()}` : `/api/cameras/${img.dataset.snap}/snapshot?t=${Date.now()}`;
     });
     camTimer = setTimeout(refreshSnapshots, 10000);
   }
@@ -731,16 +738,22 @@
 
     <div class="card"><h2>Calendars</h2>
       <p class="hint">Paste the <b>secret iCal / .ics address</b> of each calendar. Google: Calendar settings → <i>Secret address in iCal format</i>.
-      iPhone/iCloud: share calendar → <i>Public Calendar</i>. Outlook: Settings → Shared calendars → <i>Publish</i>. Syncs every 10 minutes.</p>
+      iPhone/iCloud: share calendar → <i>Public Calendar</i>. Outlook: Settings → Shared calendars → <i>Publish</i>.
+      ${NATIVE ? 'These addresses are private: they are stored only inside this app on this device and are downloaded directly by it.' : 'Syncs every 10 minutes.'}</p>
       <div id="calRows"></div>
-      <button class="btn ghost" id="addCal">${icon('plus')}Add calendar</button>
+      <div class="list-row"><button class="btn ghost" id="addCal">${icon('plus')}Add calendar</button>
+      ${NATIVE ? `<button class="btn ghost" id="syncNow">${icon('refresh')}Sync now</button>` : ''}</div>
+      ${NATIVE ? `<label class="field" style="margin-top:.6rem">Check for changes every<select id="syncMin">${[15, 20, 30].map((n) => `<option value="${n}" ${Number(s.calendarSyncMinutes || 20) === n ? 'selected' : ''}>${n} minutes</option>`).join('')}</select></label>
+        <div id="syncStatus" class="hint"></div>` : ''}
       <hr class="sep">
       <div class="list-row"><button class="calswatch" id="localColor" data-color="${esc(s.localCalendar.color)}" title="Tap to pick a color" style="background:${esc(cc(s.localCalendar.color))}"></button><input type="text" id="localName" value="${esc(s.localCalendar.name)}"></div>
-      <p class="hint" style="margin:0">Events you add on this screen go into this calendar. To see them on your phones, subscribe to
-      <code>${esc(origin)}/calendar.ics</code> (works while your phone is on home Wi-Fi).</p>
+      <p class="hint" style="margin:0">${NATIVE ? 'Events you add on this screen go into this calendar and are stored only on this device.'
+        : `Events you add on this screen go into this calendar. To see them on your phones, subscribe to
+      <code>${esc(origin)}/calendar.ics</code> (works while your phone is on home Wi-Fi).`}</p>
     </div>
 
-    <div class="card"><h2>Dropbox</h2>
+    ${NATIVE ? `<div class="card"><h2>Pictures</h2><p class="hint" style="margin:0">Photos and artwork you add with <b>Photo</b> (board) or
+      <b>Upload artwork</b> (screensaver) are resized and kept privately on this device. They never leave it.</p></div>` : `<div class="card"><h2>Dropbox</h2>
       <div class="status ${st.dropbox.connected ? 'ok' : ''}">${st.dropbox.connected ? 'Connected' : st.dropbox.appKeys ? 'Not connected' : 'App keys not set on server'}</div>
       ${st.dropbox.appKeys ? (st.dropbox.connected
         ? '<div><button class="btn ghost" id="dbxOff">Disconnect</button></div>'
@@ -750,7 +763,7 @@
         : '<p class="hint">Create a Dropbox app and set <code>DROPBOX_APP_KEY</code> / <code>DROPBOX_APP_SECRET</code> on the server (see README). Until then, photos uploaded here are stored on the server.</p>'}
       <label class="field">Bulletin board folder<input id="boardFolder" value="${esc(s.board.dropboxFolder)}"></label>
       <label class="field">Screensaver folder<input id="saverFolder" value="${esc(ss.dropboxFolder)}"></label>
-    </div>
+    </div>`}
 
     <div class="card"><h2>Screensaver</h2>
       <div class="check"><input type="checkbox" id="ssOn" ${ss.enabled ? 'checked' : ''}> Start automatically when idle</div>
@@ -774,11 +787,20 @@
     <div class="card"><h2>Home &amp; Alexa</h2>
       <div class="status ${st.homeAssistant ? 'ok' : ''}">${st.homeAssistant ? 'Home Assistant connected' : 'Home Assistant not configured'}</div>
       ${st.homeAssistant ? '<p class="hint">Tick what to show. Echo devices (from Alexa Media Player) appear as media players — tick them under <b>Alexa</b>.</p><div id="haPick" class="picklist">Loading…</div>'
-        : '<p class="hint">Set <code>HA_URL</code> and <code>HA_TOKEN</code> on the server, then restart it.</p>'}
+        : NATIVE ? '' : '<p class="hint">Set <code>HA_URL</code> and <code>HA_TOKEN</code> on the server, then restart it.</p>'}
+      ${NATIVE ? `<p class="hint">The token is stored privately in this app and is never shown again.</p>
+        <label class="field">Home Assistant address<input id="haUrl" type="url" placeholder="http://homeassistant.local:8123" value="${esc((st.ha && st.ha.url) || '')}"></label>
+        <label class="field">Long-lived access token<input id="haToken" type="password" placeholder="${st.homeAssistant ? '•••••••• (saved — paste to replace)' : 'Paste token'}" autocomplete="off"></label>
+        <div class="list-row"><button class="btn ghost" id="haSave">Save connection</button>${st.homeAssistant ? '<button class="btn ghost" id="haClear">Forget</button>' : ''}</div>` : ''}
     </div>
 
-    <div class="card"><h2>About</h2><p class="hint">Open <code>${esc(origin)}</code> on a phone or computer on the same Wi-Fi to change settings or upload pictures from there.</p>
-      <button class="btn ghost" onclick="location.reload()">Reload display</button></div>`;
+    ${NATIVE ? `<div class="card"><h2>Display</h2>
+      <label class="field">Screen orientation (locked)<select id="orient">${[['landscape', 'Horizontal'], ['portrait', 'Vertical'], ['reverse_landscape', 'Horizontal, upside down'], ['reverse_portrait', 'Vertical, upside down']]
+        .map(([v, l]) => `<option value="${v}" ${st.app.orientation === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+      <p class="hint">Family Hub ${esc(st.app.version)} · runs full screen, keeps the screen on and starts when the frame boots.</p>
+      <button class="btn ghost" onclick="location.reload()">Reload display</button></div>`
+    : `<div class="card"><h2>About</h2><p class="hint">Open <code>${esc(origin)}</code> on a phone or computer on the same Wi-Fi to change settings or upload pictures from there.</p>
+      <button class="btn ghost" onclick="location.reload()">Reload display</button></div>`}`;
 
     // calendars
     const calRows = () => {
@@ -815,6 +837,32 @@
     $('#accentPick').addEventListener('click', (e) => { const b = e.target.closest('[data-accent]'); if (b) previewAccent(b.dataset.accent); });
     $('#accentCustom').addEventListener('input', (e) => previewAccent(e.target.value));
     $('#sTheme').addEventListener('change', () => applyTheme({ theme: $('#sTheme').value, accent: s.accent }));
+
+    if (NATIVE) {
+      const showSync = () => {
+        const sync = (state.status.sync && state.status.sync.calendars) || {};
+        const ago = (t) => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'just now' : m < 60 ? `${m} min ago` : `${Math.round(m / 60)} h ago`; };
+        $('#syncStatus').innerHTML = s.calendars.filter((c) => c.url).map((c) => {
+          const x = sync[c.id] || {};
+          return `<div>${esc(c.name)}: ${x.error ? `<b>${esc(x.error)}</b>${x.fetchedAt ? ` · last good copy ${ago(x.fetchedAt)}` : ''}` : x.fetchedAt ? `updated ${ago(x.fetchedAt)}` : 'waiting for first download'}</div>`;
+        }).join('');
+      };
+      showSync();
+      window.HubNativeEvents.settingsSyncRefresh = async () => { await refreshStatus(); if ($('#syncStatus')) showSync(); };
+      $('#syncNow').addEventListener('click', () => { window.HubNative.refreshCalendars(); toast('Checking calendars…'); });
+      $('#orient').addEventListener('change', (e) => window.HubNative.setOrientation(e.target.value));
+      $('#haSave').addEventListener('click', async () => {
+        const url = $('#haUrl').value.trim(), token = $('#haToken').value.trim();
+        if (!/^https?:\/\//.test(url)) return toast('Enter an address starting with http:// or https://');
+        if (!token && !state.status.homeAssistant) return toast('Paste the access token');
+        window.HubNative.setHomeAssistant(url, token);
+        await refreshStatus(); toast('Home Assistant saved'); renderSettings();
+      });
+      if ($('#haClear')) $('#haClear').addEventListener('click', async () => {
+        if (!confirm('Forget the Home Assistant connection?')) return;
+        window.HubNative.setHomeAssistant('', ''); await refreshStatus(); renderSettings();
+      });
+    }
 
     // cameras
     const camRows = () => {
@@ -868,14 +916,15 @@
   }
 
   function collectSettings() {
-    const s = draft, v = (id) => $('#' + id).value, c = (id) => $('#' + id).checked;
+    const s = draft, v = (id) => $('#' + id).value, c = (id) => $('#' + id).checked, ss0 = s.screensaver;
     s.theme = v('sTheme'); s.title = v('sTitle'); s.use24h = v('s24') === '1'; s.weekStartsOn = Number(v('sWeek'));
     s.tabs = { cameras: c('tCam'), home: c('tHome'), snacks: c('tSnacks') };
     s.localCalendar = { name: v('localName') || 'Family', color: $('#localColor').dataset.color };
-    s.board.dropboxFolder = v('boardFolder');
+    if ($('#boardFolder')) s.board.dropboxFolder = v('boardFolder');
+    if ($('#syncMin')) s.calendarSyncMinutes = Number(v('syncMin'));
     Object.assign(s.screensaver, {
       enabled: c('ssOn'), idleMinutes: Math.max(1, Number(v('ssIdle')) || 5), intervalSeconds: Math.max(5, Number(v('ssInt')) || 20),
-      showClock: c('ssClock'), showDate: c('ssDate'), showNextEvent: c('ssNext'), kenBurns: c('ssKb'), clockPosition: v('ssPos'), dropboxFolder: v('saverFolder'),
+      showClock: c('ssClock'), showDate: c('ssDate'), showNextEvent: c('ssNext'), kenBurns: c('ssKb'), clockPosition: v('ssPos'), dropboxFolder: $('#saverFolder') ? v('saverFolder') : ss0.dropboxFolder,
     });
     if ($('#haPick') && $('[data-ent], [data-alexa]', $('#haPick'))) {
       s.home.entities = $$('[data-ent]:checked').map((x) => x.dataset.ent);
@@ -1003,12 +1052,30 @@
 
   function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
+  // ================================================================ native app hooks
+  if (NATIVE) {
+    window.HubNativeEvents = window.HubNativeEvents || {};
+    // Kotlin calls this after a background calendar download finishes
+    window.HubNativeEvents.calendarsUpdated = () => {
+      if ($('#saver').classList.contains('hidden')) loadCalendar();
+      if (window.HubNativeEvents.settingsSyncRefresh && state.view === 'settings') window.HubNativeEvents.settingsSyncRefresh();
+    };
+    // hardware Back closes whatever is open instead of leaving the app
+    window.HubNativeEvents.back = () => {
+      if (!$('#saver').classList.contains('hidden')) return stopSaver();
+      if (!$('#modal').classList.contains('hidden')) return closeModal();
+      if (!$('#lightbox').classList.contains('hidden')) return closeLb();
+      if (!$('#camLive').classList.contains('hidden')) { $('#camLive').classList.add('hidden'); $('#camFrame').src = 'about:blank'; return; }
+      if (state.view !== 'calendar') showView('calendar');
+    };
+  }
+
   // ================================================================ boot
   async function boot() {
     try {
       [state.settings] = await Promise.all([api('/api/settings'), refreshStatus()]);
     } catch (e) {
-      document.body.innerHTML = `<div class="empty" style="margin-top:20vh">${bigIcon('plug')}<b>Can't reach the Family Hub server.</b><br>${esc(e.message)}<br>Retrying…</div>`;
+      document.body.innerHTML = `<div class="empty" style="margin-top:20vh">${bigIcon('plug')}<b>${NATIVE ? 'Family Hub could not start.' : 'Can\'t reach the Family Hub server.'}</b><br>${esc(e.message)}<br>Retrying…</div>`;
       return setTimeout(() => location.reload(), 15000);
     }
     applyTabs(); applyTheme(); hydrateIcons(document);

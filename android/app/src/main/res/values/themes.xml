@@ -1,0 +1,8 @@
+<resources>
+    <!-- No action bar, no title, white window so there's no flash before the page draws -->
+    <style name="Theme.FamilyHub" parent="android:Theme.Material.Light.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+</resources>
