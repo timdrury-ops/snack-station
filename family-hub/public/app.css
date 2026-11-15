@@ -208,19 +208,6 @@ code { background: var(--soft); padding: .1rem .35rem; border-radius: 5px; font-
 .lb-nav.prev { left: 1.2rem; } .lb-nav.next { right: 1.2rem; }
 .lb-bar { position: absolute; bottom: 1.1rem; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 1rem; color: rgba(255,255,255,.85); font-size: .9rem; text-transform: capitalize; }
 
-/* ---------- cameras ---------- */
-.cam-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr)); gap: 1rem; }
-.cam { position: relative; border-radius: var(--radius); overflow: hidden; background: #000; aspect-ratio: 16 / 9; border: 0; padding: 0; }
-.cam img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(.15); }
-.cam .placeholder { height: 100%; display: flex; align-items: center; justify-content: center; color: #555; }
-.cam .placeholder .i { width: 2.4rem; height: 2.4rem; }
-.cam .label { position: absolute; left: .8rem; bottom: .7rem; color: #fff; font-weight: 500; font-size: .9rem; display: flex; align-items: center; gap: .45rem; background: rgba(0,0,0,.45); padding: .3rem .7rem; border-radius: 99px; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
-.cam .label::before { content: ""; width: .5rem; height: .5rem; border-radius: 50%; background: #fff; }
-.cam.offline .label::before { background: #666; }
-#camLive { background: #000; }
-#camFrame { border: 0; width: 100%; height: 100%; }
-.cam-live-title { position: absolute; top: 1.3rem; left: 1.5rem; color: #fff; font-weight: 600; font-size: 1.1rem; z-index: 2; }
-
 /* ---------- home / alexa ---------- */
 .home-section { margin-bottom: 1.8rem; }
 .home-section h2 { font-size: .75rem; font-weight: 500; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 0 0 .8rem; }
@@ -340,7 +327,6 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 1rem 0; }
 
   .board-grid { columns: 3 11rem; }
   .board-head { flex-wrap: wrap; }
-  .cam-grid { grid-template-columns: 1fr; }
   .alexa > .row:first-child { flex-wrap: wrap; }
   .alexa > .row:first-child input { flex: 1 1 100%; order: 3; }
   .saver-clock { padding: 6vmin; }

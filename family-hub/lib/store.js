@@ -41,9 +41,8 @@ export const DEFAULT_SETTINGS = {
     kenBurns: true,
     dropboxFolder: '/Screensaver',
   },
-  cameras: [],             // [{ name, live, snapshot }]
   home: { entities: [], alexaDevices: [] },
-  tabs: { cameras: true, home: true, snacks: false },
+  tabs: { home: true, snacks: false },
 };
 
 export function getSettings() {

@@ -30,7 +30,6 @@
   const ICON_PATHS = {
     calendar: '<rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/>',
     pin: '<path d="M12 16.5V22"/><path d="M8.5 3.5h7l-1 6 3 3.5v2H6.5v-2l3-3.5z"/>',
-    camera: '<path d="M14.5 4h-5L7.5 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3.5z"/><circle cx="12" cy="13" r="3.5"/>',
     home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v12h14V9"/><path d="M10 21v-6h4v6"/>',
     cookie: '<path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5z"/><path d="M8.5 8.5h.01M16 15.5h.01M12 12h.01M11 17h.01M7 14h.01"/>',
     moon: '<path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11z"/>',
@@ -213,7 +212,6 @@
     $$('.view').forEach((v) => v.classList.toggle('active', v.id === 'view-' + name));
     if (name === 'calendar') renderCalendar();
     if (name === 'board') loadBoard();
-    if (name === 'cameras') renderCameras();
     if (name === 'home') loadHome();
     if (name === 'snacks' && !$('#snackFrame').src) $('#snackFrame').src = NATIVE ? 'snacks.html' : '/snacks';
     if (name === 'settings') renderSettings();
@@ -222,7 +220,6 @@
 
   function applyTabs() {
     const t = state.settings.tabs || {};
-    $('.tab[data-view=cameras]').classList.toggle('hidden', t.cameras === false);
     $('.tab[data-view=home]').classList.toggle('hidden', t.home === false);
     $('.tab[data-view=snacks]').classList.toggle('hidden', !t.snacks);
     document.title = state.settings.title || 'Family Hub';
@@ -579,45 +576,6 @@
     });
   }
 
-  // ================================================================ CAMERAS
-  let camTimer;
-  function renderCameras() {
-    const cams = state.settings.cameras || [];
-    if (!cams.length) {
-      $('#camGrid').innerHTML = `<div class="empty" style="grid-column:1/-1">${bigIcon('camera')}
-        <b>No cameras yet.</b><br>Wyze doesn't let other apps view cameras directly, so run the free
-        <b>docker-wyze-bridge</b> on a home computer, then add each camera in <b>Settings → Cameras</b>.
-        See the README for the 5-minute setup.</div>`;
-      return;
-    }
-    $('#camGrid').innerHTML = cams.map((c, i) => `<button class="cam" data-cam="${i}">
-      ${c.snapshot ? `<img data-snap="${i}" alt="">` : `<div class="placeholder">${icon('play')}</div>`}
-      <span class="label">${esc(c.name)}</span></button>`).join('');
-    refreshSnapshots();
-  }
-  function refreshSnapshots() {
-    clearTimeout(camTimer);
-    if (state.view !== 'cameras' || !$('#saver').classList.contains('hidden')) return;
-    $$('[data-snap]').forEach((img) => {
-      const next = new Image();
-      next.onload = () => { img.src = next.src; img.closest('.cam').classList.remove('offline'); };
-      next.onerror = () => img.closest('.cam').classList.add('offline');
-      // in the app the camera is fetched straight from the LAN; on the server it's proxied
-      const cam = state.settings.cameras[Number(img.dataset.snap)] || {};
-      next.src = NATIVE ? `${cam.snapshot}${cam.snapshot.indexOf('?') < 0 ? '?' : '&'}t=${Date.now()}` : `/api/cameras/${img.dataset.snap}/snapshot?t=${Date.now()}`;
-    });
-    camTimer = setTimeout(refreshSnapshots, 10000);
-  }
-  $('#camGrid').addEventListener('click', (e) => {
-    const b = e.target.closest('[data-cam]'); if (!b) return;
-    const cam = state.settings.cameras[Number(b.dataset.cam)];
-    if (!cam.live) return toast('Add a live-view URL for this camera in Settings');
-    $('#camLiveTitle').textContent = cam.name;
-    $('#camFrame').src = cam.live;
-    $('#camLive').classList.remove('hidden');
-  });
-  $('#camLive .lb-close').addEventListener('click', () => { $('#camLive').classList.add('hidden'); $('#camFrame').src = 'about:blank'; });
-
   // ================================================================ HOME / ALEXA
   const ICONS = { light: 'bulb', switch: 'power', fan: 'fan', scene: 'sparkles', script: 'play', input_boolean: 'toggle', lock: 'lock', cover: 'blinds', climate: 'thermo', media_player: 'speaker' };
   let homeStates = [];
@@ -731,7 +689,6 @@
       <label class="field">Week starts<select id="sWeek"><option value="0">Sunday</option><option value="1" ${s.weekStartsOn === 1 ? 'selected' : ''}>Monday</option></select></label></div>
       <label class="field">Settings PIN (blank = no PIN)<input id="sPin" inputmode="numeric" maxlength="8" placeholder="${s.hasPin ? '•••• (unchanged)' : 'none'}"></label>
       ${s.hasPin ? '<div class="check"><input type="checkbox" id="sPinOff"> Remove the PIN</div>' : ''}
-      <div class="check"><input type="checkbox" id="tCam" ${s.tabs.cameras !== false ? 'checked' : ''}> Cameras tab</div>
       <div class="check"><input type="checkbox" id="tHome" ${s.tabs.home !== false ? 'checked' : ''}> Home / Alexa tab</div>
       <div class="check"><input type="checkbox" id="tSnacks" ${s.tabs.snacks ? 'checked' : ''}> Snack Station tab</div>
     </div>
@@ -776,12 +733,6 @@
       <label class="field">Clock position<select id="ssPos">${['bottom-left', 'bottom-right', 'top-left', 'top-right', 'center'].map((p) => `<option ${ss.clockPosition === p ? 'selected' : ''}>${p}</option>`).join('')}</select></label>
       <div class="list-row"><label class="btn ghost">${icon('upload')}Upload artwork<input type="file" id="ssUpload" accept="image/*" multiple hidden></label><button class="btn ghost" id="ssPreview">Preview</button></div>
       <div id="ssThumbs" class="thumbs"></div>
-    </div>
-
-    <div class="card"><h2>Cameras</h2>
-      <p class="hint">With docker-wyze-bridge running at e.g. <code>192.168.1.50</code>, a camera named "Front Door" uses<br>
-      Live: <code>http://192.168.1.50:8889/front-door/</code><br>Snapshot: <code>http://192.168.1.50:5000/snapshot/front-door.jpg</code></p>
-      <div id="camRows"></div><button class="btn ghost" id="addCam">${icon('plus')}Add camera</button>
     </div>
 
     <div class="card"><h2>Home &amp; Alexa</h2>
@@ -864,16 +815,6 @@
       });
     }
 
-    // cameras
-    const camRows = () => {
-      $('#camRows').innerHTML = s.cameras.map((c, i) => `<div style="margin-bottom:.7rem"><div class="list-row"><input type="text" data-mi="${i}" data-k="name" value="${esc(c.name)}" placeholder="Name"><button class="rm" data-rmcam="${i}" aria-label="Remove">${icon('x')}</button></div>
-        <div class="list-row"><input type="url" data-mi="${i}" data-k="live" value="${esc(c.live || '')}" placeholder="Live view URL"></div>
-        <div class="list-row"><input type="url" data-mi="${i}" data-k="snapshot" value="${esc(c.snapshot || '')}" placeholder="Snapshot URL (optional)"></div></div>`).join('');
-    };
-    camRows();
-    $('#camRows').addEventListener('input', (e) => { const i = e.target.dataset.mi; if (i != null) s.cameras[i][e.target.dataset.k] = e.target.value; });
-    $('#camRows').addEventListener('click', (e) => { const i = e.target.dataset.rmcam; if (i != null) { s.cameras.splice(i, 1); camRows(); } });
-    $('#addCam').addEventListener('click', () => { s.cameras.push({ name: '', live: '', snapshot: '' }); camRows(); });
 
     // dropbox
     if ($('#dbxLink')) $('#dbxLink').addEventListener('click', async () => {
@@ -918,7 +859,7 @@
   function collectSettings() {
     const s = draft, v = (id) => $('#' + id).value, c = (id) => $('#' + id).checked, ss0 = s.screensaver;
     s.theme = v('sTheme'); s.title = v('sTitle'); s.use24h = v('s24') === '1'; s.weekStartsOn = Number(v('sWeek'));
-    s.tabs = { cameras: c('tCam'), home: c('tHome'), snacks: c('tSnacks') };
+    s.tabs = { home: c('tHome'), snacks: c('tSnacks') };
     s.localCalendar = { name: v('localName') || 'Family', color: $('#localColor').dataset.color };
     if ($('#boardFolder')) s.board.dropboxFolder = v('boardFolder');
     if ($('#syncMin')) s.calendarSyncMinutes = Number(v('syncMin'));
@@ -931,7 +872,6 @@
       s.home.alexaDevices = $$('[data-alexa]:checked').map((x) => x.dataset.alexa);
     }
     s.calendars = s.calendars.filter((k) => k.url.trim());
-    s.cameras = s.cameras.filter((k) => k.name.trim() || k.live.trim());
     const pin = v('sPin').trim();
     if (pin) s.pin = pin; else delete s.pin;
     if ($('#sPinOff') && c('sPinOff')) s.pin = '';
@@ -956,8 +896,7 @@
     clearTimeout(idleTimer);
     const ss = state.settings && state.settings.screensaver;
     if (!ss || !ss.enabled) return;
-    // don't fall asleep mid-movie on a live camera
-    idleTimer = setTimeout(() => { if ($('#camLive').classList.contains('hidden')) startSaver(); else resetIdle(); }, ss.idleMinutes * 60000);
+    idleTimer = setTimeout(startSaver, ss.idleMinutes * 60000);
   }
   ['pointerdown', 'touchstart', 'keydown', 'wheel'].forEach((ev) => document.addEventListener(ev, () => { if ($('#saver').classList.contains('hidden')) resetIdle(); }, { passive: true, capture: true }));
 
@@ -1040,7 +979,6 @@
     $('#saver').classList.add('hidden');
     $$('#saver .bg, #saver .fg').forEach((el) => { el.style.backgroundImage = ''; });
     resetIdle();
-    if (state.view === 'cameras') refreshSnapshots();
     if (state.view === 'calendar') loadCalendar();
   }
   // swallow the waking tap so it doesn't also press whatever was underneath
@@ -1065,7 +1003,6 @@
       if (!$('#saver').classList.contains('hidden')) return stopSaver();
       if (!$('#modal').classList.contains('hidden')) return closeModal();
       if (!$('#lightbox').classList.contains('hidden')) return closeLb();
-      if (!$('#camLive').classList.contains('hidden')) { $('#camLive').classList.add('hidden'); $('#camFrame').src = 'about:blank'; return; }
       if (state.view !== 'calendar') showView('calendar');
     };
   }

@@ -14,7 +14,7 @@
     localCalendar: { name: 'Family', color: '#ef4444' },
     board: { dropboxFolder: '' },
     screensaver: { enabled: true, idleMinutes: 5, intervalSeconds: 20, showClock: true, showDate: true, showNextEvent: true, clockPosition: 'bottom-left', kenBurns: true, dropboxFolder: '' },
-    cameras: [], home: { entities: [], alexaDevices: [] }, tabs: { cameras: true, home: true, snacks: false },
+    home: { entities: [], alexaDevices: [] }, tabs: { home: true, snacks: false },
   };
   const clone = (o) => JSON.parse(JSON.stringify(o));
   const read = (key, fallback) => { try { const v = N.getItem(key); return v ? JSON.parse(v) : clone(fallback); } catch (e) { return clone(fallback); } };

@@ -47,6 +47,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions { jvmTarget = "17" }
+
+    // JVM unit tests run CalendarSync's real networking code against a local server
+    testOptions { unitTests.isReturnDefaultValues = true }
 }
 
 // ---- Bundle the web app into the APK ----
@@ -69,4 +72,8 @@ dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.activity:activity-ktx:1.9.3")
     implementation("androidx.webkit:webkit:1.12.1")
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testImplementation("org.json:json:20240303") // real org.json for JVM tests (Android's is a stub there)
 }

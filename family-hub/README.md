@@ -2,29 +2,28 @@
 
 A wall-display app for a jailbroken Skylight Calendar (or any Android tablet or touchscreen). It has:
 
-- **📅 Synced calendar**: month, week and list views. It pulls in Google, iCloud, Outlook, school and sports calendars, and you can add events from the screen itself.
-- **📌 Bulletin board**: a corkboard of pinned photos from a Dropbox folder, plus sticky notes. Tap a photo to see it full size, and swipe to flip through them.
+- **📅 Synced calendar**: month, week and list views. It pulls in Google, iCloud, Outlook, school and sports calendars from their private iCal addresses, and you can add events from the screen itself.
+- **📌 Bulletin board**: pinned photos plus sticky notes. Tap a photo to see it full size, and swipe to flip through them.
 - **🌙 Screensaver**: a slideshow of your own artwork with an optional clock, date and "next event" line.
-- **📷 Wyze cameras**: snapshot tiles, and you tap one for live video. This goes through docker-wyze-bridge.
 - **💡 Home and Alexa**: light and plug tiles, Echo playback controls, and "tell Alexa…" commands. This goes through Home Assistant.
 - **🥨 Snack Station**: the existing snack tracker in this repo, available as an optional tab.
 
 ---
 
-## How it fits together
+## Two ways to run it
+
+**1. Android app (recommended, fully private).** See [`../android/README.md`](../android/README.md).
+The web files are bundled inside the APK, and the frame downloads your calendars itself. Calendar addresses, events, notes, photos and the Home Assistant token stay in the app's private storage on the frame. Nothing is hosted anywhere, and no home server is needed.
+
+**2. Home server (optional).** The rest of this page covers it. The same front end is served by a small Node server on a computer at home. It adds Dropbox photo folders and a `calendar.ics` feed of on-screen events for your phones. The frame then just shows `http://<server-ip>:3000` in a kiosk browser.
 
 ```
  ┌──────────────────────┐        ┌──────────────────────────────┐
  │ Skylight (Android)   │  Wi-Fi │ Home server (Pi / PC / NAS)  │
- │ Fully Kiosk Browser  ├───────►│ Family Hub  :3000            │──► Google/iCloud .ics feeds
- │ → http://SERVER:3000 │        │ wyze-bridge :8889 (optional) │──► Dropbox API
- └──────────────────────┘        │ Home Assistant (optional)    │──► Wyze / Alexa clouds
-                                 └──────────────────────────────┘
+ │ kiosk browser        ├───────►│ Family Hub  :3000            │──► Google/iCloud .ics feeds
+ │ → http://SERVER:3000 │        │ Home Assistant (optional)    │──► Dropbox API, Alexa
+ └──────────────────────┘        └──────────────────────────────┘
 ```
-
-The Skylight only runs a full-screen browser. All the logic and API keys stay on a small always-on computer at home, which keeps the display light and makes updates painless. A Raspberry Pi 4 or 5 is plenty.
-
-> **Calendar and board only?** You can run the server on the Skylight itself in Termux (`pkg install nodejs`, then `npm start`) and point the browser at `http://localhost:3000`. The cameras and Alexa features need Home Assistant and wyze-bridge, which belong on a real server.
 
 ---
 
@@ -109,20 +108,7 @@ Under **Settings → Screensaver** you can choose:
 
 Landscape art fills the screen, and portrait art is shown whole without cropping. The 🌙 **Sleep** button starts it right away, and a tap anywhere wakes the screen. That waking tap doesn't press anything underneath.
 
-## 6. Wyze cameras
-
-Wyze has no official way for other apps to show your cameras. The community project **[docker-wyze-bridge](https://github.com/mrlt8/docker-wyze-bridge)** logs into your Wyze account and re-streams each camera on your network.
-
-1. Get an API ID and key at <https://developer-api-console.wyze.com>.
-2. Uncomment the `wyze-bridge` block in `docker-compose.yml`, fill it in, and run `docker compose up -d`.
-3. Open `http://<server-ip>:5000` to see your camera names. They are lowercased with dashes, for example `front-door`.
-4. In **Settings → Cameras**, add each one:
-   - Live: `http://<server-ip>:8889/front-door/`
-   - Snapshot: `http://<server-ip>:5000/snapshot/front-door.jpg`
-
-The Cameras tab refreshes snapshots every 10 seconds and opens WebRTC live video when you tap a tile. Caveats: this is unofficial, so a Wyze firmware or cloud change can break it until the bridge updates. Some newer models, such as certain v4 and battery cams, may not be supported.
-
-## 7. Alexa and smart home
+## 6. Alexa and smart home
 
 Amazon offers no public API to control Echo devices or "Alexa" from another app. The working route is **Home Assistant**, which is free and runs on the same Pi:
 

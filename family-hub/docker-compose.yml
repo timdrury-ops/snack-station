@@ -9,19 +9,3 @@ services:
     volumes: ["./data:/data"]
     restart: unless-stopped
 
-  # ---- Optional: Wyze cameras. Uncomment and fill in your Wyze login. ----
-  # Get API_ID / API_KEY at https://developer-api-console.wyze.com/#/apikey/view
-  # wyze-bridge:
-  #   image: mrlt8/wyze-bridge:latest
-  #   restart: unless-stopped
-  #   ports:
-  #     - "5000:5000"      # web UI + snapshots
-  #     - "8889:8889"      # WebRTC live view (what the display uses)
-  #     - "8189:8189/udp"  # WebRTC media
-  #   environment:
-  #     - WYZE_EMAIL=you@example.com
-  #     - WYZE_PASSWORD=your-wyze-password
-  #     - API_ID=
-  #     - API_KEY=
-  #     - WB_IP=192.168.1.50          # this computer's LAN IP
-  #     - SNAPSHOT=RTSP30             # refresh snapshots every 30s

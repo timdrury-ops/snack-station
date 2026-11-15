@@ -16,7 +16,6 @@
     <div class="rail-clock"><div id="railTime">--:--</div><div id="railDate"></div></div>
     <button class="tab active" data-view="calendar"><span class="ico"><i data-icon="calendar"></i></span><span>Calendar</span></button>
     <button class="tab" data-view="board"><span class="ico"><i data-icon="pin"></i></span><span>Board</span></button>
-    <button class="tab" data-view="cameras"><span class="ico"><i data-icon="camera"></i></span><span>Cameras</span></button>
     <button class="tab" data-view="home"><span class="ico"><i data-icon="home"></i></span><span>Home</span></button>
     <button class="tab" data-view="snacks"><span class="ico"><i data-icon="cookie"></i></span><span>Snacks</span></button>
     <div class="rail-spacer"></div>
@@ -62,12 +61,6 @@
       </div>
     </section>
 
-    <!-- CAMERAS -->
-    <section id="view-cameras" class="view">
-      <header class="page-head"><h1>Cameras</h1></header>
-      <div id="camGrid" class="cam-grid"></div>
-    </section>
-
     <!-- HOME / ALEXA -->
     <section id="view-home" class="view">
       <header class="page-head"><h1>Home</h1><button class="btn ghost icon" id="homeRefresh" aria-label="Refresh"><i data-icon="refresh"></i></button></header>
@@ -92,13 +85,6 @@
   <img id="lbImg" alt="">
   <button class="lb-nav next" aria-label="Next"><i data-icon="right"></i></button>
   <div class="lb-bar"><span id="lbTitle"></span><button class="btn ghost light" id="lbDelete"><i data-icon="trash"></i>Remove</button></div>
-</div>
-
-<!-- live camera -->
-<div id="camLive" class="overlay hidden">
-  <button class="lb-close" aria-label="Close"><i data-icon="x"></i></button>
-  <div class="cam-live-title" id="camLiveTitle"></div>
-  <iframe id="camFrame" allow="autoplay; fullscreen" title="Live camera"></iframe>
 </div>
 
 <!-- screensaver -->

@@ -1,4 +1,4 @@
-// Smart-home bridge. Neither Wyze nor Amazon offers a public API for this, so we
+// Smart-home bridge. Amazon offers no public API for Echo devices, so we
 // go through Home Assistant: its "Alexa Media Player" custom integration can
 // drive Echo devices, and Home Assistant itself controls the lights/plugs/etc.
 // that Alexa normally controls. The token stays on the server.

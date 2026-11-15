@@ -133,17 +133,6 @@ app.post('/api/dropbox/code', requirePin, wrap(async (req, res) => {
 }));
 app.post('/api/dropbox/disconnect', requirePin, (req, res) => { dropbox.disconnect(); res.json({ ok: true }); });
 
-// ---------- cameras ----------
-// Snapshots are proxied so the display only ever talks to this server.
-app.get('/api/cameras/:i/snapshot', wrap(async (req, res) => {
-  const cam = getSettings().cameras[Number(req.params.i)];
-  if (!cam?.snapshot) return res.status(404).end();
-  const r = await fetch(cam.snapshot, { signal: AbortSignal.timeout(10000) });
-  if (!r.ok) return res.status(502).end();
-  res.set('Content-Type', r.headers.get('content-type') || 'image/jpeg').set('Cache-Control', 'no-store');
-  res.send(Buffer.from(await r.arrayBuffer()));
-}));
-
 // ---------- Home Assistant / Alexa ----------
 const needHA = (req, res, next) => (ha.isConfigured() ? next() : res.status(400).json({ error: 'Home Assistant is not configured (HA_URL / HA_TOKEN)' }));
 
