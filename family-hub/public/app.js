@@ -94,7 +94,10 @@
   }
   let palette = { h: 220, s: 80, l: 50, dark: false };
   const isDark = () => palette.dark;
-  // calendar colors are stored as "shade:0".."shade:4" (follow the accent) or a fixed hex
+  // Calendars get their own distinct colors (picked per calendar), independent of the UI color.
+  const CAL_COLORS = [['#3b82f6', 'Blue'], ['#ef4444', 'Red'], ['#22c55e', 'Green'], ['#f59e0b', 'Amber'], ['#8b5cf6', 'Purple'],
+    ['#ec4899', 'Pink'], ['#14b8a6', 'Teal'], ['#f97316', 'Orange'], ['#6366f1', 'Indigo'], ['#84cc16', 'Lime'], ['#a16207', 'Brown'], ['#64748b', 'Slate']];
+  // older versions stored "shade:N" (a shade of the UI color); those still resolve
   const SHADE_COUNT = 5;
   const shadeColor = (i) => {
     const { h, s, l, dark } = palette;
@@ -102,7 +105,21 @@
     return hsl(h, Math.min(s, 85) * (i === 0 ? 1 : 0.8), L);
   };
   const cc = (c) => (/^shade:\d$/.test(c || '') ? shadeColor(Number(c.slice(6)) % SHADE_COUNT) : c);
-  const CAL_SHADES = ['shade:0', 'shade:1', 'shade:2', 'shade:3', 'shade:4'];
+  // pop-up for choosing one calendar's color: presets plus any custom color
+  function pickCalColor(current, title, done) {
+    const cur = (cc(current) || '').toLowerCase();
+    openModal(`<h2>${esc(title)} color</h2>
+      <div class="calcolors">${CAL_COLORS.map(([c, n]) => `<button data-cc="${c}" title="${n}" aria-label="${n}" style="background:${c}" class="${cur === c ? 'on' : ''}"></button>`).join('')}
+        <label class="custom" title="Any color"><input type="color" id="ccCustom" value="${/^#[0-9a-f]{6}$/.test(cur) ? cur : '#3b82f6'}">${icon('plus')}</label></div>
+      <div class="actions"><button class="btn ghost" data-close>Cancel</button></div>`, (el) => {
+      $('[data-close]', el).addEventListener('click', closeModal);
+      $$('[data-cc]', el).forEach((b) => b.addEventListener('click', () => { done(b.dataset.cc); closeModal(); }));
+      $('#ccCustom', el).addEventListener('change', (e) => { done(e.target.value); closeModal(); });
+    });
+  }
+  // a light wash of a calendar's color for event cards (a bit stronger on dark backgrounds)
+  const wash = (c) => (/^#[0-9a-f]{6}$/i.test(c || '') ? c + (isDark() ? '33' : '1c') : '');
+  const unusedCalColor =(used) => (CAL_COLORS.find(([c]) => !used.includes(c)) || CAL_COLORS[used.length % CAL_COLORS.length])[0];
 
   let themeKey = '';
   function applyTheme(settings) {
@@ -322,7 +339,7 @@
   }
 
   function cardEv(e) {
-    return `<button class="card-ev panel-ev" data-ev="${esc(e.id)}" style="--c:${esc(cc(e.color))}">
+    return `<button class="card-ev panel-ev" data-ev="${esc(e.id)}" style="--c:${esc(cc(e.color))};--cbg:${esc(wash(cc(e.color)))}">
       <div class="t">${esc(e.title)}</div><div class="s">${esc(evTimeLabel(e))}${e.location ? ' · ' + esc(e.location) : ''}</div></button>`;
   }
 
@@ -698,7 +715,7 @@
     $('#settingsBody').innerHTML = `
     <div class="card"><h2>General</h2>
       <label class="field">Display name<input id="sTitle" value="${esc(s.title)}"></label>
-      <div class="field">Color
+      <div class="field">App color
         <div class="accents" id="accentPick">${ACCENTS.map(([c, n]) => `<button data-accent="${c}" title="${n}" aria-label="${n}" style="background:${c}" class="${(s.accent || '#2563eb').toLowerCase() === c ? 'on' : ''}"></button>`).join('')}
           <label class="custom" title="Any color"><input type="color" id="accentCustom" value="${esc(s.accent || '#2563eb')}">${icon('plus')}</label></div>
       </div>
@@ -718,7 +735,7 @@
       <div id="calRows"></div>
       <button class="btn ghost" id="addCal">${icon('plus')}Add calendar</button>
       <hr class="sep">
-      <div class="list-row"><button class="calswatch" id="localColor" data-color="${esc(s.localCalendar.color)}" title="Tap to change shade" style="background:${esc(cc(s.localCalendar.color))}"></button><input type="text" id="localName" value="${esc(s.localCalendar.name)}"></div>
+      <div class="list-row"><button class="calswatch" id="localColor" data-color="${esc(s.localCalendar.color)}" title="Tap to pick a color" style="background:${esc(cc(s.localCalendar.color))}"></button><input type="text" id="localName" value="${esc(s.localCalendar.name)}"></div>
       <p class="hint" style="margin:0">Events you add on this screen go into this calendar. To see them on your phones, subscribe to
       <code>${esc(origin)}/calendar.ics</code> (works while your phone is on home Wi-Fi).</p>
     </div>
@@ -765,28 +782,35 @@
 
     // calendars
     const calRows = () => {
-      $('#calRows').innerHTML = s.calendars.map((c, i) => `<div class="list-row"><button class="calswatch" data-swatch="${i}" title="Tap to change shade" style="background:${esc(cc(c.color))}"></button>
+      $('#calRows').innerHTML = s.calendars.map((c, i) => `<div class="list-row"><button class="calswatch" data-swatch="${i}" title="Tap to pick a color" style="background:${esc(cc(c.color))}"></button>
         <input type="text" data-ci="${i}" data-k="name" value="${esc(c.name)}" placeholder="Name" style="flex:0 0 8rem">
         <input type="url" data-ci="${i}" data-k="url" value="${esc(c.url)}" placeholder="https://… .ics"><button class="rm" data-rmcal="${i}" aria-label="Remove">${icon('x')}</button></div>`).join('');
     };
     calRows();
     $('#calRows').addEventListener('input', (e) => { const i = e.target.dataset.ci; if (i != null) s.calendars[i][e.target.dataset.k] = e.target.value; });
-    // tapping a calendar's dot steps through shades of the accent color
-    const nextShade = (c) => CAL_SHADES[(CAL_SHADES.indexOf(c) + 1) % CAL_SHADES.length];
+    // tapping a calendar's dot opens its color picker
     $('#calRows').addEventListener('click', (e) => {
       const sw = e.target.closest('[data-swatch]');
-      if (sw) { const c = s.calendars[sw.dataset.swatch]; c.color = nextShade(c.color); sw.style.background = cc(c.color); return; }
+      if (sw) {
+        const c = s.calendars[sw.dataset.swatch];
+        return pickCalColor(c.color, c.name || 'Calendar', (col) => { c.color = col; sw.style.background = col; });
+      }
       const rm = e.target.closest('[data-rmcal]'); if (rm) { s.calendars.splice(rm.dataset.rmcal, 1); calRows(); }
     });
-    $('#localColor').addEventListener('click', (e) => { const b = e.currentTarget; b.dataset.color = nextShade(b.dataset.color); b.style.background = cc(b.dataset.color); });
-    $('#addCal').addEventListener('click', () => { s.calendars.push({ name: '', url: '', color: CAL_SHADES[(s.calendars.length + 1) % CAL_SHADES.length] }); calRows(); });
+    $('#localColor').addEventListener('click', (e) => {
+      const b = e.currentTarget;
+      pickCalColor(b.dataset.color, $('#localName').value || 'Family', (col) => { b.dataset.color = col; b.style.background = col; });
+    });
+    $('#addCal').addEventListener('click', () => {
+      const used = [$('#localColor').dataset.color].concat(s.calendars.map((c) => c.color));
+      s.calendars.push({ name: '', url: '', color: unusedCalColor(used) }); calRows();
+    });
 
     // accent color: preview live, kept only when saved
     const previewAccent = (c) => {
       s.accent = c;
       $$('#accentPick [data-accent]').forEach((b) => b.classList.toggle('on', b.dataset.accent === c.toLowerCase()));
       applyTheme({ theme: $('#sTheme').value, accent: c });
-      $$('.calswatch').forEach((b) => { const col = b.id === 'localColor' ? b.dataset.color : s.calendars[b.dataset.swatch].color; b.style.background = cc(col); });
     };
     $('#accentPick').addEventListener('click', (e) => { const b = e.target.closest('[data-accent]'); if (b) previewAccent(b.dataset.accent); });
     $('#accentCustom').addEventListener('input', (e) => previewAccent(e.target.value));

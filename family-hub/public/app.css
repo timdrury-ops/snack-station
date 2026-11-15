@@ -120,7 +120,7 @@ code { background: var(--soft); padding: .1rem .35rem; border-radius: 5px; font-
 .wcol.today { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--accent-soft); }
 .wcol h3 { margin: 0 0 .3rem; font-size: .72rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
 .wcol h3 b { display: block; font-size: 1.6rem; font-weight: 600; color: var(--ink); letter-spacing: -.03em; }
-.card-ev { border-radius: 10px; padding: .5rem .6rem; background: var(--soft); border: 0; border-left: 3px solid var(--c); font-size: .82rem; color: var(--ink); }
+.card-ev { border-radius: 10px; padding: .5rem .6rem; background: var(--cbg, var(--soft)); border: 0; border-left: 3px solid var(--c); font-size: .82rem; color: var(--ink); }
 .card-ev .t { font-weight: 600; }
 .card-ev .s { color: var(--muted); font-size: .74rem; margin-top: .1rem; }
 
@@ -267,6 +267,11 @@ code { background: var(--soft); padding: .1rem .35rem; border-radius: 5px; font-
 .accents button.on { box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--ink); }
 .accents .custom { display: flex; align-items: center; justify-content: center; border: 1.5px dashed var(--faint); color: var(--muted); overflow: hidden; cursor: pointer; }
 .accents .custom input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+.calcolors { display: grid; grid-template-columns: repeat(auto-fill, 3.2rem); gap: .8rem; margin: .4rem 0 1rem; }
+.calcolors button, .calcolors .custom { width: 3.2rem; height: 3.2rem; border-radius: 50%; border: 0; padding: 0; position: relative; }
+.calcolors button.on { box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--ink); }
+.calcolors .custom { display: flex; align-items: center; justify-content: center; border: 1.5px dashed var(--faint); color: var(--muted); overflow: hidden; cursor: pointer; }
+.calcolors .custom input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
 .calswatch { width: 2.6rem; height: 2.6rem; border-radius: 50%; border: 3px solid var(--surface); box-shadow: 0 0 0 1px var(--line); flex: none; padding: 0; }
 hr.sep { border: 0; border-top: 1px solid var(--line); margin: 1rem 0; }
 

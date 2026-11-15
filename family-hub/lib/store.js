@@ -28,7 +28,7 @@ export const DEFAULT_SETTINGS = {
   calendars: [],           // [{ id, name, url, color }]
   theme: 'light',          // light | dark | auto (dark 9 PM – 7 AM)
   accent: '#2563eb',       // the one color the whole palette is built from
-  localCalendar: { name: 'Family', color: 'shade:0' },
+  localCalendar: { name: 'Family', color: '#ef4444' },
   board: { dropboxFolder: '/Bulletin Board' },
   screensaver: {
     enabled: true,
