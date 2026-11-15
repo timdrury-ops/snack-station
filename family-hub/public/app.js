@@ -24,6 +24,72 @@
     board: { photos: [], notes: [] },
   };
 
+
+  // ---------------------------------------------------------------- line icons (monochrome, inherit text color)
+  const ICON_PATHS = {
+    calendar: '<rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/>',
+    pin: '<path d="M12 16.5V22"/><path d="M8.5 3.5h7l-1 6 3 3.5v2H6.5v-2l3-3.5z"/>',
+    camera: '<path d="M14.5 4h-5L7.5 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3.5z"/><circle cx="12" cy="13" r="3.5"/>',
+    home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v12h14V9"/><path d="M10 21v-6h4v6"/>',
+    cookie: '<path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5z"/><path d="M8.5 8.5h.01M16 15.5h.01M12 12h.01M11 17h.01M7 14h.01"/>',
+    moon: '<path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11z"/>',
+    sliders: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1.5 14h5M9.5 8h5M17.5 16h5"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    pencil: '<path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+    upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/>',
+    refresh: '<path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/>',
+    trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 6"/>',
+    left: '<path d="m15 18-6-6 6-6"/>',
+    right: '<path d="m9 18 6-6-6-6"/>',
+    x: '<path d="M18 6 6 18M6 6l12 12"/>',
+    mappin: '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>',
+    bulb: '<path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/>',
+    power: '<path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/>',
+    fan: '<circle cx="12" cy="12" r="1.8"/><path d="M12 10.2C12 6 13 3 15.5 3S19 6.5 13.8 11M13.8 12c4.2 0 7.2 1 7.2 3.5S17.5 19 13 13.8M12 13.8c0 4.2-1 7.2-3.5 7.2S5 17.5 10.2 13M10.2 12C6 12 3 11 3 8.5S6.5 5 11 10.2"/>',
+    sparkles: '<path d="M11 3l1.8 4.7L17.5 9.5l-4.7 1.8L11 16l-1.8-4.7L4.5 9.5l4.7-1.8z"/><path d="M18.5 15v5M16 17.5h5"/>',
+    play: '<path d="M7 4.5v15l12.5-7.5z"/>',
+    toggle: '<rect x="2" y="6.5" width="20" height="11" rx="5.5"/><circle cx="16.5" cy="12" r="2.5"/>',
+    lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+    unlock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.8-1.2"/>',
+    blinds: '<path d="M3 3h18M5 3v13M19 3v13M5 7h14M5 11h14M5 15h14M12 16v5"/>',
+    thermo: '<path d="M14 4v10.5a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0z"/><path d="M12 18v-5"/>',
+    speaker: '<path d="M11 5 6 9H2.5v6H6l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
+    voldown: '<path d="M11 5 6 9H2.5v6H6l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/>',
+    playpause: '<path d="M4 5.5v13l8.5-6.5z"/><path d="M16 5.5v13M20.5 5.5v13"/>',
+    skip: '<path d="M5 5.5v13L15 12z"/><path d="M19 5.5v13"/>',
+    alert: '<path d="M12 3.5 2.5 20.5h19z"/><path d="M12 10v4.5M12 17.5h.01"/>',
+    image: '<rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/>',
+    send: '<path d="M21.5 2.5 11 13M21.5 2.5l-7 19-3.5-8.5-8.5-3.5z"/>',
+    plug: '<path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  };
+  const icon = (n) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[n] || ''}</svg>`;
+  const hydrateIcons = (el) => $$('i[data-icon]', el).forEach((x) => { x.outerHTML = icon(x.dataset.icon); });
+  const bigIcon = (n) => `<div class="big">${icon(n)}</div>`;
+  // readable text on a calendar color (light grays get dark text)
+  const inkOn = (c) => {
+    const m = /^#([0-9a-f]{6})$/i.exec(c || ''); if (!m) return '#fff';
+    const v = parseInt(m[1], 16), l = (0.299 * (v >> 16) + 0.587 * ((v >> 8) & 255) + 0.114 * (v & 255)) / 255;
+    return l > 0.6 ? '#111' : '#fff';
+  };
+  // gray calendar shades flip in dark mode so "black" calendars stay visible; real colors are left alone
+  const cc = (c) => {
+    const m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(c || '');
+    if (!m || document.documentElement.dataset.theme !== 'dark') return c;
+    const [r, g, b] = m.slice(1).map((x) => parseInt(x, 16));
+    if (Math.max(r, g, b) - Math.min(r, g, b) > 12) return c;
+    return '#' + [r, g, b].map((v) => (255 - v).toString(16).padStart(2, '0')).join('');
+  };
+  const CAL_SHADES =['#111111', '#5c5c5c', '#9a9a9a', '#c8c8c8', '#2e2e2e', '#7a7a7a'];
+  const applyTheme = () => {
+    const t = state.settings.theme || 'light';
+    const night = (h) => h >= 21 || h < 7;
+    const next = t === 'auto' ? (night(new Date().getHours()) ? 'dark' : 'light') : t;
+    if (document.documentElement.dataset.theme === next) return;
+    document.documentElement.dataset.theme = next;
+    if (state.view === 'calendar') renderCalendar(); // calendar shades depend on the theme
+  };
+
   async function api(path, opts) {
     opts = opts || {};
     const headers = Object.assign({}, opts.headers || {});
@@ -152,7 +218,6 @@
     return s < dayEnd && (en > dayStart || (+en === +s && s >= dayStart));
   }
   const eventsOn = (day) => visibleEvents().filter((e) => eventOnDay(e, day)).sort((a, b) => (b.allDay - a.allDay) || String(a.start).localeCompare(String(b.start)));
-  const tint = (c) => (/^#[0-9a-f]{6}$/i.test(c) ? c + '26' : '#f3efe8');
 
   function evTimeLabel(e) {
     if (e.allDay) return 'All day';
@@ -174,12 +239,12 @@
 
     const warn = $('#calWarn');
     warn.classList.toggle('hidden', !c.errors.length);
-    warn.textContent = c.errors.length ? `⚠ ${c.errors.length} calendar${c.errors.length > 1 ? 's' : ''} offline` : '';
+    warn.innerHTML = c.errors.length ? `${icon('alert')}${c.errors.length} calendar${c.errors.length > 1 ? 's' : ''} offline` : '';
     warn.title = c.errors.map((e) => `${e.calendar}: ${e.error}`).join('\n');
 
     // legend / filters
     const cals = [{ id: 'local', name: state.settings.localCalendar.name, color: state.settings.localCalendar.color }].concat(state.settings.calendars);
-    $('#calLegend').innerHTML = cals.map((k) => `<button class="chip ${c.hidden.has(k.id) ? 'off' : ''}" data-cal="${esc(k.id)}"><span class="dot" style="background:${esc(k.color)}"></span>${esc(k.name)}</button>`).join('');
+    $('#calLegend').innerHTML = cals.map((k) => `<button class="chip ${c.hidden.has(k.id) ? 'off' : ''}" data-cal="${esc(k.id)}"><span class="dot" style="background:${esc(cc(k.color))}"></span>${esc(k.name)}</button>`).join('');
 
     const grid = $('#calGrid');
     if (c.mode === 'month') grid.innerHTML = renderMonth(from);
@@ -203,15 +268,15 @@
       const shown = evs.length > fit ? evs.slice(0, fit - 1) : evs;
       html += `<div class="${cls}" data-day="${ymd(day)}"><div class="num">${day.getDate()}</div>` +
         shown.map((e) => e.allDay
-          ? `<div class="ev allday" style="background:${esc(e.color)}">${esc(e.title)}</div>`
-          : `<div class="ev timed" style="--c:${esc(e.color)}">${fmtShortTime(new Date(e.start))} ${esc(e.title)}</div>`).join('') +
+          ? `<div class="ev allday" style="--c:${esc(cc(e.color))};--cink:${inkOn(cc(e.color))}">${esc(e.title)}</div>`
+          : `<div class="ev timed" style="--c:${esc(cc(e.color))}"><span class="tm">${fmtShortTime(new Date(e.start))}</span> ${esc(e.title)}</div>`).join('') +
         (evs.length > shown.length ? `<div class="more">+${evs.length - shown.length} more</div>` : '') + '</div>';
     }
     return html + '</div>';
   }
 
   function cardEv(e) {
-    return `<button class="card-ev panel-ev" data-ev="${esc(e.id)}" style="--c:${esc(e.color)};--cbg:${tint(e.color)}">
+    return `<button class="card-ev panel-ev" data-ev="${esc(e.id)}" style="--c:${esc(cc(e.color))}">
       <div class="t">${esc(e.title)}</div><div class="s">${esc(evTimeLabel(e))}${e.location ? ' · ' + esc(e.location) : ''}</div></button>`;
   }
 
@@ -235,16 +300,16 @@
       html += `<div class="agenda-day"><div class="d"><b>${d.getDate()}</b><span>${d.toLocaleDateString([], { weekday: 'long' })}<br>${d.toLocaleDateString([], { month: 'short' })}</span></div>
         <div class="list">${evs.map(cardEv).join('')}</div></div>`;
     }
-    if (html === '<div class="agenda">') html += `<div class="empty"><div class="big">🌤</div>Nothing on the calendar for the next few weeks.</div>`;
+    if (html === '<div class="agenda">') html += `<div class="empty">${bigIcon('sun')}Nothing on the calendar for the next few weeks.</div>`;
     return html + '</div>';
   }
 
   function renderDayPanel() {
     const d = state.cal.selected, evs = eventsOn(d);
     const label = sameDay(d, new Date()) ? 'Today' : sameDay(d, addDays(new Date(), 1)) ? 'Tomorrow' : d.toLocaleDateString([], { weekday: 'long' });
-    $('#dayPanel').innerHTML = `<div class="panel-date">${label}<div style="font-size:.85rem;color:var(--muted)">${d.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}</div></div>
+    $('#dayPanel').innerHTML = `<div class="panel-date">${label}<div>${d.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}</div></div>
       <div class="panel-list">${evs.map(cardEv).join('') || '<div class="panel-empty">Nothing planned.</div>'}</div>
-      <button class="btn ghost" style="width:100%;margin-top:1rem" id="panelAdd">＋ Add to this day</button>`;
+      <button class="btn ghost" style="width:100%;margin-top:1rem" id="panelAdd">${icon('plus')}Add to this day</button>`;
     $('#panelAdd').addEventListener('click', () => eventForm(d));
   }
 
@@ -285,8 +350,8 @@
     const e = state.cal.events.find((x) => x.id === id); if (!e) return;
     const when = e.allDay ? parseYmd(e.start).toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })
       : new Date(e.start).toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' }) + ' · ' + evTimeLabel(e);
-    openModal(`<h2 style="border-left:6px solid ${esc(e.color)};padding-left:.7rem">${esc(e.title)}</h2>
-      <p><b>${esc(when)}</b></p>${e.location ? `<p>📍 ${esc(e.location)}</p>` : ''}
+    openModal(`<h2 style="border-left:3px solid ${esc(cc(e.color))};padding-left:.7rem">${esc(e.title)}</h2>
+      <p><b>${esc(when)}</b></p>${e.location ? `<p style="display:flex;gap:.4rem;align-items:center">${icon('mappin')} ${esc(e.location)}</p>` : ''}
       ${e.notes ? `<p style="white-space:pre-wrap;color:var(--muted)">${esc(e.notes)}</p>` : ''}
       <p style="color:var(--muted);font-size:.85rem">Calendar: ${esc(e.calendar)}${e.editable ? '' : ' (synced — edit it in the original app)'}</p>
       <div class="actions">${e.editable ? '<button class="btn danger left" id="evDel">Delete</button>' : ''}<button class="btn primary" data-close>Close</button></div>`, (el) => {
@@ -337,7 +402,6 @@
   }
 
   // ================================================================ BULLETIN BOARD
-  const PINS = ['#d64545', '#2f7fd1', '#f2b632', '#3aa66a', '#9b59b6', '#ef7d32'];
 
   async function loadBoard(fresh) {
     try {
@@ -345,7 +409,7 @@
       state.board.photos = m.items; state.board.notes = notes;
       const msg = $('#boardMsg');
       msg.classList.toggle('hidden', !m.error);
-      msg.textContent = m.error ? '⚠ Dropbox: ' + m.error + ' (showing what was loaded before)' : '';
+      msg.textContent = m.error ? 'Dropbox: ' + m.error + ' (showing what was loaded before)' : '';
     } catch (e) { toast(e.message); }
     renderBoard();
   }
@@ -355,16 +419,16 @@
     const items = notes.map((n) => ({ type: 'note', at: n.created, n })).concat(photos.map((p, i) => ({ type: 'photo', at: p.modified, p, i })))
       .sort((a, b) => String(b.at).localeCompare(String(a.at)));
     if (!items.length) {
-      $('#boardGrid').innerHTML = `<div class="empty" style="background:rgba(255,250,240,.92);border-radius:16px;padding:1.5rem;column-span:all">
-        <div class="big">📌</div><b>The board is empty.</b><br>Drop photos into your Dropbox folder <b>${esc(state.settings.board.dropboxFolder)}</b>,
-        tap <b>Add photo</b>, or write a <b>Note</b>.</div>`;
+      $('#boardGrid').innerHTML = `<div class="empty" style="column-span:all">
+        ${bigIcon('pin')}<b>The board is empty.</b><br>Drop photos into your Dropbox folder <b>${esc(state.settings.board.dropboxFolder)}</b>,
+        tap <b>Photo</b>, or write a <b>Note</b>.</div>`;
       return;
     }
     $('#boardGrid').innerHTML = items.map((it) => {
       const key = it.type === 'note' ? it.n.id : it.p.id, h = hashNum(key);
-      const style = `--r:${((h % 70) / 10 - 3.5).toFixed(1)}deg;--pin:${PINS[h % PINS.length]}`;
-      if (it.type === 'note') return `<div class="pin-item sticky ${esc(it.n.color)}" style="${style}">${esc(it.n.text)}<button class="x" data-del-note="${esc(it.n.id)}" aria-label="Remove note">✕</button></div>`;
-      return `<button class="pin-item photo" style="${style};border:0;width:100%" data-photo="${it.i}"><img loading="lazy" src="${esc(it.p.thumb)}" alt=""><span class="cap">${esc(it.p.title)}</span></button>`;
+      const style = `--r:${((h % 41) / 10 - 2).toFixed(1)}deg`;
+      if (it.type === 'note') return `<div class="pin-item sticky ${esc(it.n.color)}" style="${style}">${esc(it.n.text)}<button class="x" data-del-note="${esc(it.n.id)}" aria-label="Remove note">${icon('x')}</button></div>`;
+      return `<button class="pin-item photo" style="${style}" data-photo="${it.i}"><img loading="lazy" src="${esc(it.p.thumb)}" alt=""><span class="cap">${esc(it.p.title)}</span></button>`;
     }).join('');
   }
 
@@ -381,10 +445,10 @@
   $('#boardRefresh').addEventListener('click', () => loadBoard(true));
   $('#boardUpload').addEventListener('change', (e) => uploadFiles('board', e.target.files).then(() => { e.target.value = ''; loadBoard(true); }));
   $('#addNoteBtn').addEventListener('click', () => {
-    let color = 'yellow';
+    let color = 'white';
     openModal(`<h2>New note</h2>
-      <div class="colors">${['yellow', 'pink', 'blue', 'green'].map((c) => `<button class="sticky ${c} ${c === color ? 'on' : ''}" data-c="${c}" style="min-height:0;padding:0"></button>`).join('')}</div>
-      <label class="field"><textarea id="noteText" rows="4" maxlength="500" placeholder="Pick up milk 🥛" style="font-family:Caveat,cursive;font-size:1.6rem"></textarea></label>
+      <div class="colors">${['white', 'light', 'gray', 'dark'].map((c) => `<button class="sticky ${c} ${c === color ? 'on' : ''}" data-c="${c}" style="min-height:0;padding:0"></button>`).join('')}</div>
+      <label class="field"><textarea id="noteText" rows="4" maxlength="500" placeholder="Pick up milk"></textarea></label>
       <div class="actions"><button class="btn ghost" data-close>Cancel</button><button class="btn primary" id="noteSave">Pin it</button></div>`, (el) => {
       $$('[data-c]', el).forEach((b) => b.addEventListener('click', () => { color = b.dataset.c; $$('[data-c]', el).forEach((x) => x.classList.toggle('on', x === b)); }));
       $('[data-close]', el).addEventListener('click', closeModal);
@@ -452,14 +516,14 @@
   function renderCameras() {
     const cams = state.settings.cameras || [];
     if (!cams.length) {
-      $('#camGrid').innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="big">📷</div>
+      $('#camGrid').innerHTML = `<div class="empty" style="grid-column:1/-1">${bigIcon('camera')}
         <b>No cameras yet.</b><br>Wyze doesn't let other apps view cameras directly, so run the free
         <b>docker-wyze-bridge</b> on a home computer, then add each camera in <b>Settings → Cameras</b>.
         See the README for the 5-minute setup.</div>`;
       return;
     }
     $('#camGrid').innerHTML = cams.map((c, i) => `<button class="cam" data-cam="${i}">
-      ${c.snapshot ? `<img data-snap="${i}" alt="">` : '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#888;font-size:3rem">▶</div>'}
+      ${c.snapshot ? `<img data-snap="${i}" alt="">` : `<div class="placeholder">${icon('play')}</div>`}
       <span class="label">${esc(c.name)}</span></button>`).join('');
     refreshSnapshots();
   }
@@ -485,19 +549,19 @@
   $('#camLive .lb-close').addEventListener('click', () => { $('#camLive').classList.add('hidden'); $('#camFrame').src = 'about:blank'; });
 
   // ================================================================ HOME / ALEXA
-  const ICONS = { light: '💡', switch: '🔌', fan: '🌀', scene: '✨', script: '▶️', input_boolean: '🔘', lock: '🔒', cover: '🪟', climate: '🌡️', media_player: '🔊' };
+  const ICONS = { light: 'bulb', switch: 'power', fan: 'fan', scene: 'sparkles', script: 'play', input_boolean: 'toggle', lock: 'lock', cover: 'blinds', climate: 'thermo', media_player: 'speaker' };
   let homeStates = [];
 
   async function loadHome() {
     const body = $('#homeBody');
     if (!state.status.homeAssistant) {
-      body.innerHTML = `<div class="empty"><div class="big">🏠</div><b>Connect Home Assistant to control your home.</b><br>
+      body.innerHTML = `<div class="empty">${bigIcon('home')}<b>Connect Home Assistant to control your home.</b><br>
         Amazon doesn't offer a public Alexa API, so Family Hub talks to <b>Home Assistant</b> (free), which can run
         your Echo devices through the <b>Alexa Media Player</b> add-on and control the same lights and plugs Alexa does.
         Set <code>HA_URL</code> and <code>HA_TOKEN</code> on the server — the README walks through it.</div>`;
       return;
     }
-    try { homeStates = await api('/api/home/states'); } catch (e) { body.innerHTML = `<div class="empty">⚠ ${esc(e.message)}</div>`; return; }
+    try { homeStates = await api('/api/home/states'); } catch (e) { body.innerHTML = `<div class="empty">${bigIcon('alert')}${esc(e.message)}</div>`; return; }
     renderHome();
   }
 
@@ -513,10 +577,10 @@
       html += `<div class="home-section"><h2>Alexa</h2><div class="alexa">
         <div class="row"><select id="alexaDev" style="flex:0 0 auto">${echos.map((e) => `<option value="${esc(e.entity_id)}" ${e === cur ? 'selected' : ''}>${esc(e.name)}</option>`).join('')}</select>
           <input id="alexaText" placeholder="Tell Alexa… e.g. “turn on the porch light”" autocomplete="off">
-          <button class="btn primary" id="alexaSend" style="flex:0 0 auto">Send</button></div>
+          <button class="btn primary" id="alexaSend" style="flex:0 0 auto">${icon('send')}Send</button></div>
         <label class="check" style="margin:0"><input type="checkbox" id="alexaAnnounce"> Announce it out loud instead (house-wide message)</label>
         <div class="quick">${['What\'s the weather', 'Turn off all lights', 'Play relaxing music', 'Stop', 'Good night'].map((q) => `<button data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div>
-        <div class="media"><button data-media="volume_down">🔉</button><button data-media="media_play_pause">⏯</button><button data-media="media_next_track">⏭</button><button data-media="volume_up">🔊</button><span class="np">${esc(np)}</span></div>
+        <div class="media"><button data-media="volume_down" aria-label="Volume down">${icon('voldown')}</button><button data-media="media_play_pause" aria-label="Play/pause">${icon('playpause')}</button><button data-media="media_next_track" aria-label="Next">${icon('skip')}</button><button data-media="volume_up" aria-label="Volume up">${icon('speaker')}</button><span class="np">${esc(np)}</span></div>
       </div></div>`;
     }
     html += `<div class="home-section"><h2>Devices</h2><div class="tiles">${tiles.map(tileHtml).join('') ||
@@ -533,7 +597,7 @@
     const extra = e.domain === 'climate'
       ? `<div style="display:flex;gap:.4rem"><span class="btn ghost" data-temp="-1" style="min-height:2.2rem">–</span><span class="btn ghost" data-temp="1" style="min-height:2.2rem">+</span></div>` : '';
     return `<button class="tile ${on ? 'on' : ''} ${e.state === 'unavailable' ? 'unavailable' : ''}" data-entity="${esc(e.entity_id)}">
-      <span class="ti">${e.domain === 'lock' && e.state === 'unlocked' ? '🔓' : ICONS[e.domain] || '⚪'}</span>
+      <span class="ti">${icon(e.domain === 'lock' && e.state === 'unlocked' ? 'unlock' : ICONS[e.domain] || 'power')}</span>
       <span><div class="tn">${esc(e.name)}</div><div class="ts">${esc(status)}</div></span>${extra}</button>`;
   }
 
@@ -588,6 +652,7 @@
     $('#settingsBody').innerHTML = `
     <div class="card"><h2>General</h2>
       <label class="field">Display name<input id="sTitle" value="${esc(s.title)}"></label>
+      <label class="field">Theme<select id="sTheme">${[['light', 'Light'], ['dark', 'Dark'], ['auto', 'Automatic (dark 9 PM – 7 AM)']].map(([v, l]) => `<option value="${v}" ${(s.theme || 'light') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
       <div class="row"><label class="field">Clock<select id="s24"><option value="0">12-hour (3:30 PM)</option><option value="1" ${s.use24h ? 'selected' : ''}>24-hour (15:30)</option></select></label>
       <label class="field">Week starts<select id="sWeek"><option value="0">Sunday</option><option value="1" ${s.weekStartsOn === 1 ? 'selected' : ''}>Monday</option></select></label></div>
       <label class="field">Settings PIN (blank = no PIN)<input id="sPin" inputmode="numeric" maxlength="8" placeholder="${s.hasPin ? '•••• (unchanged)' : 'none'}"></label>
@@ -601,8 +666,8 @@
       <p class="hint">Paste the <b>secret iCal / .ics address</b> of each calendar. Google: Calendar settings → <i>Secret address in iCal format</i>.
       iPhone/iCloud: share calendar → <i>Public Calendar</i>. Outlook: Settings → Shared calendars → <i>Publish</i>. Syncs every 10 minutes.</p>
       <div id="calRows"></div>
-      <button class="btn ghost" id="addCal">＋ Add calendar</button>
-      <hr style="border:0;border-top:1px solid var(--line);margin:1rem 0">
+      <button class="btn ghost" id="addCal">${icon('plus')}Add calendar</button>
+      <hr class="sep">
       <div class="list-row"><input type="color" id="localColor" value="${esc(s.localCalendar.color)}"><input type="text" id="localName" value="${esc(s.localCalendar.name)}"></div>
       <p class="hint" style="margin:0">Events you add on this screen go into this calendar. To see them on your phones, subscribe to
       <code>${esc(origin)}/calendar.ics</code> (works while your phone is on home Wi-Fi).</p>
@@ -629,14 +694,14 @@
       <div class="check"><input type="checkbox" id="ssNext" ${ss.showNextEvent ? 'checked' : ''}> Show the next calendar event</div>
       <div class="check"><input type="checkbox" id="ssKb" ${ss.kenBurns ? 'checked' : ''}> Slow zoom effect</div>
       <label class="field">Clock position<select id="ssPos">${['bottom-left', 'bottom-right', 'top-left', 'top-right', 'center'].map((p) => `<option ${ss.clockPosition === p ? 'selected' : ''}>${p}</option>`).join('')}</select></label>
-      <div class="list-row"><label class="btn ghost">⬆️ Upload artwork<input type="file" id="ssUpload" accept="image/*" multiple hidden></label><button class="btn ghost" id="ssPreview">Preview</button></div>
+      <div class="list-row"><label class="btn ghost">${icon('upload')}Upload artwork<input type="file" id="ssUpload" accept="image/*" multiple hidden></label><button class="btn ghost" id="ssPreview">Preview</button></div>
       <div id="ssThumbs" class="thumbs"></div>
     </div>
 
     <div class="card"><h2>Cameras</h2>
       <p class="hint">With docker-wyze-bridge running at e.g. <code>192.168.1.50</code>, a camera named "Front Door" uses<br>
       Live: <code>http://192.168.1.50:8889/front-door/</code><br>Snapshot: <code>http://192.168.1.50:5000/snapshot/front-door.jpg</code></p>
-      <div id="camRows"></div><button class="btn ghost" id="addCam">＋ Add camera</button>
+      <div id="camRows"></div><button class="btn ghost" id="addCam">${icon('plus')}Add camera</button>
     </div>
 
     <div class="card"><h2>Home &amp; Alexa</h2>
@@ -652,16 +717,16 @@
     const calRows = () => {
       $('#calRows').innerHTML = s.calendars.map((c, i) => `<div class="list-row"><input type="color" data-ci="${i}" data-k="color" value="${esc(c.color)}">
         <input type="text" data-ci="${i}" data-k="name" value="${esc(c.name)}" placeholder="Name" style="flex:0 0 8rem">
-        <input type="url" data-ci="${i}" data-k="url" value="${esc(c.url)}" placeholder="https://… .ics"><button class="rm" data-rmcal="${i}">✕</button></div>`).join('');
+        <input type="url" data-ci="${i}" data-k="url" value="${esc(c.url)}" placeholder="https://… .ics"><button class="rm" data-rmcal="${i}" aria-label="Remove">${icon('x')}</button></div>`).join('');
     };
     calRows();
     $('#calRows').addEventListener('input', (e) => { const i = e.target.dataset.ci; if (i != null) s.calendars[i][e.target.dataset.k] = e.target.value; });
     $('#calRows').addEventListener('click', (e) => { const i = e.target.dataset.rmcal; if (i != null) { s.calendars.splice(i, 1); calRows(); } });
-    $('#addCal').addEventListener('click', () => { s.calendars.push({ name: '', url: '', color: ['#3d7dd8', '#81b29a', '#9b59b6', '#f2b632', '#d64545'][s.calendars.length % 5] }); calRows(); });
+    $('#addCal').addEventListener('click', () => { s.calendars.push({ name: '', url: '', color: CAL_SHADES[(s.calendars.length + 1) % CAL_SHADES.length] }); calRows(); });
 
     // cameras
     const camRows = () => {
-      $('#camRows').innerHTML = s.cameras.map((c, i) => `<div style="margin-bottom:.7rem"><div class="list-row"><input type="text" data-mi="${i}" data-k="name" value="${esc(c.name)}" placeholder="Name"><button class="rm" data-rmcam="${i}">✕</button></div>
+      $('#camRows').innerHTML = s.cameras.map((c, i) => `<div style="margin-bottom:.7rem"><div class="list-row"><input type="text" data-mi="${i}" data-k="name" value="${esc(c.name)}" placeholder="Name"><button class="rm" data-rmcam="${i}" aria-label="Remove">${icon('x')}</button></div>
         <div class="list-row"><input type="url" data-mi="${i}" data-k="live" value="${esc(c.live || '')}" placeholder="Live view URL"></div>
         <div class="list-row"><input type="url" data-mi="${i}" data-k="snapshot" value="${esc(c.snapshot || '')}" placeholder="Snapshot URL (optional)"></div></div>`).join('');
     };
@@ -689,7 +754,7 @@
     // screensaver art
     const loadThumbs = async (fresh) => {
       const { items } = await api('/api/media/screensaver' + (fresh ? '?fresh=1' : ''));
-      $('#ssThumbs').innerHTML = items.map((it) => `<div><img loading="lazy" src="${esc(it.thumb)}" alt=""><button data-rmart="${esc(it.id)}" aria-label="Remove">✕</button></div>`).join('') ||
+      $('#ssThumbs').innerHTML = items.map((it) => `<div><img loading="lazy" src="${esc(it.thumb)}" alt=""><button data-rmart="${esc(it.id)}" aria-label="Remove">${icon('x')}</button></div>`).join('') ||
         '<p class="hint" style="grid-column:1/-1">No artwork yet — the screensaver will use bulletin board photos until you add some.</p>';
     };
     loadThumbs();
@@ -704,7 +769,7 @@
     if (st.homeAssistant) api('/api/home/all').then((all) => {
       const sel = new Set(s.home.entities), alexa = new Set(s.home.alexaDevices);
       const players = all.filter((e) => e.domain === 'media_player'), others = all.filter((e) => e.domain !== 'media_player');
-      const row = (e, set, attr) => `<label><input type="checkbox" ${attr}="${esc(e.entity_id)}" ${set.has(e.entity_id) ? 'checked' : ''}> ${ICONS[e.domain] || ''} ${esc(e.name)} <small>${esc(e.entity_id)}</small></label>`;
+      const row = (e, set, attr) => `<label><input type="checkbox" ${attr}="${esc(e.entity_id)}" ${set.has(e.entity_id) ? 'checked' : ''}> ${icon(ICONS[e.domain] || 'power')} ${esc(e.name)} <small>${esc(e.entity_id)}</small></label>`;
       $('#haPick').innerHTML = `<b>Alexa / speakers</b>${players.map((e) => row(e, alexa, 'data-alexa')).join('') || '<div class="hint">No media players found — install Alexa Media Player in Home Assistant.</div>'}
         <br><b>Devices</b>${others.map((e) => row(e, sel, 'data-ent')).join('')}`;
     }).catch((e) => { $('#haPick').textContent = e.message; });
@@ -712,7 +777,7 @@
 
   function collectSettings() {
     const s = draft, v = (id) => $('#' + id).value, c = (id) => $('#' + id).checked;
-    s.title = v('sTitle'); s.use24h = v('s24') === '1'; s.weekStartsOn = Number(v('sWeek'));
+    s.theme = v('sTheme'); s.title = v('sTitle'); s.use24h = v('s24') === '1'; s.weekStartsOn = Number(v('sWeek'));
     s.tabs = { cameras: c('tCam'), home: c('tHome'), snacks: c('tSnacks') };
     s.localCalendar = { name: v('localName') || 'Family', color: v('localColor') };
     s.board.dropboxFolder = v('boardFolder');
@@ -737,7 +802,7 @@
     try {
       state.settings = await api('/api/settings', { method: 'PUT', body: s });
       if (s.pin) state.pin = s.pin;
-      applyTabs(); resetIdle(); toast('Saved'); loadCalendar(); renderSettings();
+      applyTabs(); applyTheme(); resetIdle(); toast('Saved'); loadCalendar(); renderSettings();
     } catch (e) { toast(e.message); }
   });
 
@@ -851,10 +916,11 @@
     try {
       [state.settings] = await Promise.all([api('/api/settings'), refreshStatus()]);
     } catch (e) {
-      document.body.innerHTML = `<div class="empty" style="margin-top:20vh"><div class="big">🔌</div><b>Can't reach the Family Hub server.</b><br>${esc(e.message)}<br>Retrying…</div>`;
+      document.body.innerHTML = `<div class="empty" style="margin-top:20vh">${bigIcon('plug')}<b>Can't reach the Family Hub server.</b><br>${esc(e.message)}<br>Retrying…</div>`;
       return setTimeout(() => location.reload(), 15000);
     }
-    applyTabs();
+    applyTabs(); applyTheme(); hydrateIcons(document);
+    setInterval(applyTheme, 60000);
     tickClock(); setInterval(tickClock, 1000);
     showView('calendar');
     loadCalendar();

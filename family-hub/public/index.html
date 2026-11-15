@@ -3,27 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#1f2a2e">
+<meta name="theme-color" content="#111111">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
 <title>Family Hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Caveat:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap">
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
 <div id="app">
   <nav id="rail">
     <div class="rail-clock"><div id="railTime">--:--</div><div id="railDate"></div></div>
-    <button class="tab active" data-view="calendar"><span class="ico">📅</span><span>Calendar</span></button>
-    <button class="tab" data-view="board"><span class="ico">📌</span><span>Board</span></button>
-    <button class="tab" data-view="cameras"><span class="ico">📷</span><span>Cameras</span></button>
-    <button class="tab" data-view="home"><span class="ico">💡</span><span>Home</span></button>
-    <button class="tab" data-view="snacks"><span class="ico">🥨</span><span>Snacks</span></button>
+    <button class="tab active" data-view="calendar"><span class="ico"><i data-icon="calendar"></i></span><span>Calendar</span></button>
+    <button class="tab" data-view="board"><span class="ico"><i data-icon="pin"></i></span><span>Board</span></button>
+    <button class="tab" data-view="cameras"><span class="ico"><i data-icon="camera"></i></span><span>Cameras</span></button>
+    <button class="tab" data-view="home"><span class="ico"><i data-icon="home"></i></span><span>Home</span></button>
+    <button class="tab" data-view="snacks"><span class="ico"><i data-icon="cookie"></i></span><span>Snacks</span></button>
     <div class="rail-spacer"></div>
-    <button class="tab small" id="sleepBtn" title="Start screensaver"><span class="ico">🌙</span><span>Sleep</span></button>
-    <button class="tab small" data-view="settings"><span class="ico">⚙️</span><span>Settings</span></button>
+    <button class="tab small" id="sleepBtn" title="Start screensaver"><span class="ico"><i data-icon="moon"></i></span><span>Sleep</span></button>
+    <button class="tab small" data-view="settings"><span class="ico"><i data-icon="sliders"></i></span><span>Settings</span></button>
   </nav>
 
   <main>
@@ -35,10 +35,10 @@
           <div class="seg" id="calMode">
             <button data-mode="month" class="on">Month</button><button data-mode="week">Week</button><button data-mode="agenda">List</button>
           </div>
-          <button class="btn ghost" id="calPrev" aria-label="Previous">‹</button>
+          <button class="btn ghost icon" id="calPrev" aria-label="Previous"><i data-icon="left"></i></button>
           <button class="btn ghost" id="calToday">Today</button>
-          <button class="btn ghost" id="calNext" aria-label="Next">›</button>
-          <button class="btn primary" id="addEventBtn">＋ Event</button>
+          <button class="btn ghost icon" id="calNext" aria-label="Next"><i data-icon="right"></i></button>
+          <button class="btn primary" id="addEventBtn"><i data-icon="plus"></i>Event</button>
         </div>
       </header>
       <div id="calLegend" class="legend"></div>
@@ -52,11 +52,11 @@
     <section id="view-board" class="view">
       <div class="cork">
         <header class="board-head">
-          <h1 class="hand">Bulletin Board</h1>
+          <h1 class="hand">Bulletin board</h1>
           <div>
-            <button class="btn paper" id="addNoteBtn">✏️ Note</button>
-            <label class="btn paper">⬆️ Add photo<input type="file" id="boardUpload" accept="image/*" multiple hidden></label>
-            <button class="btn paper" id="boardRefresh">↻</button>
+            <button class="btn paper" id="addNoteBtn"><i data-icon="pencil"></i>Note</button>
+            <label class="btn paper"><i data-icon="upload"></i>Photo<input type="file" id="boardUpload" accept="image/*" multiple hidden></label>
+            <button class="btn paper icon" id="boardRefresh" aria-label="Refresh"><i data-icon="refresh"></i></button>
           </div>
         </header>
         <div id="boardMsg" class="board-msg hidden"></div>
@@ -72,7 +72,7 @@
 
     <!-- HOME / ALEXA -->
     <section id="view-home" class="view">
-      <header class="page-head"><h1>Home</h1><button class="btn ghost" id="homeRefresh">↻</button></header>
+      <header class="page-head"><h1>Home</h1><button class="btn ghost icon" id="homeRefresh" aria-label="Refresh"><i data-icon="refresh"></i></button></header>
       <div id="homeBody"></div>
     </section>
 
@@ -89,16 +89,16 @@
 
 <!-- full-size picture viewer -->
 <div id="lightbox" class="overlay hidden">
-  <button class="lb-close" aria-label="Close">✕</button>
-  <button class="lb-nav prev" aria-label="Previous">‹</button>
+  <button class="lb-close" aria-label="Close"><i data-icon="x"></i></button>
+  <button class="lb-nav prev" aria-label="Previous"><i data-icon="left"></i></button>
   <img id="lbImg" alt="">
-  <button class="lb-nav next" aria-label="Next">›</button>
-  <div class="lb-bar"><span id="lbTitle"></span><button class="btn ghost light" id="lbDelete">🗑 Remove</button></div>
+  <button class="lb-nav next" aria-label="Next"><i data-icon="right"></i></button>
+  <div class="lb-bar"><span id="lbTitle"></span><button class="btn ghost light" id="lbDelete"><i data-icon="trash"></i>Remove</button></div>
 </div>
 
 <!-- live camera -->
 <div id="camLive" class="overlay hidden">
-  <button class="lb-close" aria-label="Close">✕</button>
+  <button class="lb-close" aria-label="Close"><i data-icon="x"></i></button>
   <div class="cam-live-title" id="camLiveTitle"></div>
   <iframe id="camFrame" allow="autoplay; fullscreen" title="Live camera"></iframe>
 </div>

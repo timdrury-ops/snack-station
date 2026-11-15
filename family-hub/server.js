@@ -38,7 +38,7 @@ app.put('/api/settings', requirePin, wrap((req, res) => {
   delete next.hasPin;
   next.calendars = (next.calendars || []).map((c) => ({
     id: c.id || crypto.randomUUID().slice(0, 8),
-    name: String(c.name || 'Calendar'), url: String(c.url || '').trim(), color: c.color || '#3d7dd8',
+    name: String(c.name || 'Calendar'), url: String(c.url || '').trim(), color: c.color || '#5c5c5c',
   }));
   saveSettings(next);
   calendar.refreshFeeds();

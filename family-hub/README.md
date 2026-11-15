@@ -141,6 +141,16 @@ The Home tab then gives you:
 
 The Home Assistant token stays on the server. The display can only call the small set of actions listed in `lib/homeassistant.js`.
 
+## Look and theme
+
+The interface is monochrome: black, white and grays, the Inter typeface, and thin line icons. Under **Settings → General → Theme** you can pick:
+
+- **Light**
+- **Dark**
+- **Automatic**, which switches to dark from 9 PM to 7 AM so the screen isn't glaring at night.
+
+Calendars default to gray shades, and gray shades flip in dark mode so a "black" calendar stays visible. You can still give a calendar a real color in Settings if you want one to stand out. Photos and your screensaver art always keep their own colors.
+
 ## Settings PIN
 
 Set a PIN in **Settings → General** to stop little hands from changing settings or deleting photos and events. Adding events and notes still works without the PIN.
