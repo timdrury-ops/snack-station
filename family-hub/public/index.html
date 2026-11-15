@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#1f2a2e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<title>Family Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Caveat:wght@500;700&display=swap">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div id="app">
+  <nav id="rail">
+    <div class="rail-clock"><div id="railTime">--:--</div><div id="railDate"></div></div>
+    <button class="tab active" data-view="calendar"><span class="ico">📅</span><span>Calendar</span></button>
+    <button class="tab" data-view="board"><span class="ico">📌</span><span>Board</span></button>
+    <button class="tab" data-view="cameras"><span class="ico">📷</span><span>Cameras</span></button>
+    <button class="tab" data-view="home"><span class="ico">💡</span><span>Home</span></button>
+    <button class="tab" data-view="snacks"><span class="ico">🥨</span><span>Snacks</span></button>
+    <div class="rail-spacer"></div>
+    <button class="tab small" id="sleepBtn" title="Start screensaver"><span class="ico">🌙</span><span>Sleep</span></button>
+    <button class="tab small" data-view="settings"><span class="ico">⚙️</span><span>Settings</span></button>
+  </nav>
+
+  <main>
+    <!-- CALENDAR -->
+    <section id="view-calendar" class="view active">
+      <header class="cal-head">
+        <div class="cal-title"><h1 id="calTitle"></h1><span id="calWarn" class="warn hidden" title=""></span></div>
+        <div class="cal-controls">
+          <div class="seg" id="calMode">
+            <button data-mode="month" class="on">Month</button><button data-mode="week">Week</button><button data-mode="agenda">List</button>
+          </div>
+          <button class="btn ghost" id="calPrev" aria-label="Previous">‹</button>
+          <button class="btn ghost" id="calToday">Today</button>
+          <button class="btn ghost" id="calNext" aria-label="Next">›</button>
+          <button class="btn primary" id="addEventBtn">＋ Event</button>
+        </div>
+      </header>
+      <div id="calLegend" class="legend"></div>
+      <div class="cal-body">
+        <div id="calGrid"></div>
+        <aside id="dayPanel"></aside>
+      </div>
+    </section>
+
+    <!-- BULLETIN BOARD -->
+    <section id="view-board" class="view">
+      <div class="cork">
+        <header class="board-head">
+          <h1 class="hand">Bulletin Board</h1>
+          <div>
+            <button class="btn paper" id="addNoteBtn">✏️ Note</button>
+            <label class="btn paper">⬆️ Add photo<input type="file" id="boardUpload" accept="image/*" multiple hidden></label>
+            <button class="btn paper" id="boardRefresh">↻</button>
+          </div>
+        </header>
+        <div id="boardMsg" class="board-msg hidden"></div>
+        <div id="boardGrid" class="board-grid"></div>
+      </div>
+    </section>
+
+    <!-- CAMERAS -->
+    <section id="view-cameras" class="view">
+      <header class="page-head"><h1>Cameras</h1></header>
+      <div id="camGrid" class="cam-grid"></div>
+    </section>
+
+    <!-- HOME / ALEXA -->
+    <section id="view-home" class="view">
+      <header class="page-head"><h1>Home</h1><button class="btn ghost" id="homeRefresh">↻</button></header>
+      <div id="homeBody"></div>
+    </section>
+
+    <!-- SNACKS -->
+    <section id="view-snacks" class="view flush"><iframe id="snackFrame" title="Snack Station"></iframe></section>
+
+    <!-- SETTINGS -->
+    <section id="view-settings" class="view">
+      <header class="page-head"><h1>Settings</h1><button class="btn primary" id="saveSettings">Save</button></header>
+      <div id="settingsBody" class="settings"></div>
+    </section>
+  </main>
+</div>
+
+<!-- full-size picture viewer -->
+<div id="lightbox" class="overlay hidden">
+  <button class="lb-close" aria-label="Close">✕</button>
+  <button class="lb-nav prev" aria-label="Previous">‹</button>
+  <img id="lbImg" alt="">
+  <button class="lb-nav next" aria-label="Next">›</button>
+  <div class="lb-bar"><span id="lbTitle"></span><button class="btn ghost light" id="lbDelete">🗑 Remove</button></div>
+</div>
+
+<!-- live camera -->
+<div id="camLive" class="overlay hidden">
+  <button class="lb-close" aria-label="Close">✕</button>
+  <div class="cam-live-title" id="camLiveTitle"></div>
+  <iframe id="camFrame" allow="autoplay; fullscreen" title="Live camera"></iframe>
+</div>
+
+<!-- screensaver -->
+<div id="saver" class="hidden">
+  <div class="saver-img" id="saverA"></div>
+  <div class="saver-img" id="saverB"></div>
+  <div class="saver-shade"></div>
+  <div id="saverClock" class="saver-clock">
+    <div class="sc-time" id="scTime"></div>
+    <div class="sc-date" id="scDate"></div>
+    <div class="sc-next" id="scNext"></div>
+  </div>
+</div>
+
+<div id="modal" class="overlay modal hidden"><div class="sheet" id="sheet"></div></div>
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

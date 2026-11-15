@@ -1,0 +1,10 @@
+{
+  "name": "Family Hub",
+  "short_name": "Family Hub",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#f6f1e9",
+  "theme_color": "#1f2a2e",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

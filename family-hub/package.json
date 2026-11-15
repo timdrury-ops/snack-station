@@ -1,0 +1,21 @@
+{
+  "name": "family-hub",
+  "version": "1.0.0",
+  "description": "Wall-display family hub for a Skylight-style touchscreen",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.22.3",
+    "node-ical": "^0.27.6"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  }
+}
